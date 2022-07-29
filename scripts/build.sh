@@ -17,4 +17,4 @@ uglifyjs js/bundle.js -o js/bundle.js
 
 git add *; git commit -m 'update'; git push;
 
-echo '-- Finished build.sh for just-intonation --'
+echo '-- Finished build.sh for spectrogram --'
