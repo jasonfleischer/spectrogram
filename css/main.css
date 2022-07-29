@@ -1,0 +1,147 @@
+@font-face {
+  font-family: "SF Display Thin";
+  font-display: block;
+  src: url("../fonts/SF_Pro_Display_Thin.woff2");
+}
+
+html, body {
+    margin: 0px;
+    padding: 0px;
+    top: 0;
+    bottom: 0;
+    min-width: 320px;
+    font-size: 15px;
+    -webkit-text-size-adjust:none;
+    min-height: -webkit-fill-available;
+    height: -webkit-fill-available;
+}
+
+body {
+	background: #000; 
+	color: #EEE;
+	min-width: 340px;
+	font-family: 'SF Display Thin', sans-serif;
+	margin: 0px;
+	padding: 0px;
+}
+
+main {
+	width: 100%;
+	padding-top: var(--header-height);
+	display: flex;
+	flex-wrap: wrap; 
+  	justify-content:  center;
+}
+
+aside {
+  	width: 100%;
+  	display: flex;
+  	flex-wrap: wrap; 
+  	justify-content:  center;
+}
+
+article {
+	min-width: 340px;
+	margin: 10px;
+}
+
+table {
+	width: 100%;
+}
+th {
+	text-align: left;
+}
+tr td {
+	width: 50%;
+	height:  48px;
+}
+
+select {
+	height: 48px;
+	width: 150px;
+}
+
+button {
+	min-width: 36px;
+	margin-top: 3px;
+	margin-bottom: 3px;
+}
+
+input {
+	height: 48px;
+}
+
+strong {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #007bff;
+}
+
+label {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.switch {
+	pointer-events: none; /* row click */
+}
+
+.highlighted {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.highlighted-background {
+    color: #007bff;
+    font-weight: bold;
+    background-color: var(--primary-font-color);;
+    border-radius: .22rem;
+}
+
+.checkbox-row {
+	color: var(--primary-font-color);
+	font-size: 15px;
+	height: var(--row-height);
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+}
+.checkbox-row label{
+	cursor: pointer !important;
+}
+
+.checkbox-row span:first-child{
+	
+	height: 100%;
+	white-space: nowrap;
+	width: calc(100% - 150px);
+	text-align: left;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: var(--row-height);
+}
+
+.slider {
+	width: 150px;
+}
+
+.no_select {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+#ios_install_instructions p {
+    font-size: 18px !important;
+}
+#ios_install_instructions img {
+    width: 25px;
+    height: 25px;
+    vertical-align: text-bottom
+}
+
+
+

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<!-- (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-170120616-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('config', 'UA-170120616-1');
+	</script>
+	<!-- end of - Google Analytics -->
+	<title>Spectrogram</title>
+	<meta charset="utf-8">
+	<meta name="author" content="Jason Fleischer">
+	<meta name="description" content="JA spectrogram is a visual representation of the spectrum of frequencies of a signal as it varies with time.">
+	<meta name='viewport' content='width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no'>
+	<meta name="theme-color" content="#000"/>
+	<link rel="icon" type="image/png" sizes="32x32" href="img/favicon.png">
+	<link rel="stylesheet" href="css/bundle.css">
+	<link rel="manifest" href="manifest.json">
+	<link rel="apple-touch-icon" href="img/icon/192.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="img/icon/152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="img/icon/180.png">
+	<link rel="apple-touch-icon" sizes="167x167" href="img/icon/167.png">
+</head>
+<body>
+	<header>
+		<div id="page_name" class="no_select">Spectrogram</div>
+		<button id="kofi_button">
+			<img src="img/kofi.svg" width="25" height="25" alt="Buy Me a Coffee at ko-fi.com" />
+			<span >Support the Developer</span>
+		</button>
+		<button id="info_button" ><img id="info_button_svg" src="img/info_white.svg" width="16" height="19" alt="Info"/></button>
+	</header>
+	<div id="alert_container" class="no_select">
+		<div id="alert">
+			<div id="alert_header">
+				<h3 id="alert_title"></h3>
+				<button id="dismiss_alert_button" ><img height="16" id="dismiss_close_button_svg" src="img/close_white.svg" alt="Dismiss alert"/></button>
+			</div>
+			<div id="alert_contents"></div>
+		</div>
+	</div>
+	<main>
+		<article>
+			<div id="spectrogram"></div>
+		</article>
+	</main>
+	<aside>
+		<article>
+			
+		</article>
+		<article >
+			
+		</article>
+	</aside>
+	<script src="js/bundle.js"></script>
+</body>
+</html>

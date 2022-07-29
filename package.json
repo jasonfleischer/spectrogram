@@ -1,0 +1,26 @@
+{
+  "name": "spectrogram",
+  "version": "1.0.0",
+  "description": "A spectrogram is a visual representation of the spectrum of frequencies of a signal as it varies with time.",
+  "main": "js/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonfleischer/spectrogram.git"
+  },
+  "keywords": [
+    "spectrogram"
+  ],
+  "author": "Jason R. A. Fleischer",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jasonfleischer/spectrogram#readme"
+  },
+  "homepage": "https://jasonfleischer.github.io/spectrogram/",
+  "dependencies": {
+    "@jasonfleischer/log": "^1.0.0",
+    "@jasonfleischer/piano": "^1.0.0"
+  }
+}

@@ -1,0 +1,93 @@
+@media (min-width: 800px), (min-height: 500px) { /*desktop*/
+
+    #kofi_button {
+        width: 158px;
+    }
+    #kofi_button img {
+        padding-left: 0px;
+    }
+    #kofi_button span{
+    	display: block;
+	}
+}
+
+@media (max-width: 800px), (max-height: 500px) { /*mobile mode*/
+
+    #kofi_button {
+        width: 36px;
+        border-radius: 18px;
+    }
+    #kofi_button img {
+        padding-left: 2px;
+    }
+    #kofi_button span{
+    	display: none;
+	}
+}
+header {
+    position: fixed;
+    background: var(--secondary-background-color);
+    height: var(--header-height);
+    box-shadow: 1px 0px 5px var(--primary-background-color);
+    z-index: 3;
+    margin: 0px;
+    width: 100%;
+}
+
+header #page_name {
+    top:  0px;
+     position: absolute;
+    font-size: 24px;  
+    line-height:var(--header-height);
+    height: var(--header-height);
+    white-space: nowrap;
+    margin-left: 20px;
+    width: 120px;
+    cursor: pointer;
+}
+
+#kofi_button {
+	padding: 0px;
+    float: left;
+    height: 36px;
+    position: absolute;
+    top: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+    right: 54px;
+}
+#kofi_button span{
+    float: right;
+    padding-left: 2px;
+    padding-right: 10px;
+    line-height: 36px;
+    font-size: 12px;
+    width: 112px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#kofi_button img {
+    padding-left: 6px;
+    float: left;
+    padding-top: 2px;
+    padding-right: 0px;
+    padding-bottom: 2px;
+    border:0px;
+    height:30px;
+}
+
+#info_button {
+    height: 36px;
+    width: 36px;
+    position: absolute;
+    top: 4px;
+    cursor: pointer;
+    border-radius: 18px;
+    right: 15px;
+}
+#info_button img {
+    padding-top: 3px;
+    padding-left: 0px;
+    height: 16px;
+}
