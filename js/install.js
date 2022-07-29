@@ -1,17 +1,17 @@
 var install = {}
 let prompt;
-const ROOT_DIRECTORY_NAME = "spectrogram";
+const PROJECT_NAME = "spectrogram";
 
 if ('serviceWorker' in navigator) {
 	
-  	navigator.serviceWorker.register('/'+ROOT_DIRECTORY_NAME+'/service_worker.js', { scope: '/'+ROOT_DIRECTORY_NAME+'/' }).then(function(reg) {
+  	navigator.serviceWorker.register('/'+PROJECT_NAME+'/service_worker.js', { scope: '/'+PROJECT_NAME+'/' }).then(function(reg) {
 
 	    if(reg.installing) {
-	      console.log(ROOT_DIRECTORY_NAME+': Service worker installing');
+	      console.log(PROJECT_NAME+': Service worker installing');
 	    } else if(reg.waiting) {
-	      console.log(ROOT_DIRECTORY_NAME+': Service worker installed');
+	      console.log(PROJECT_NAME+': Service worker installed');
 	    } else if(reg.active) {
-	      console.log(ROOT_DIRECTORY_NAME+': Service worker active');
+	      console.log(PROJECT_NAME+': Service worker active');
 	    }
 
 	}).catch(function(error) { // registration failed
