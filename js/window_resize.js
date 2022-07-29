@@ -18,5 +18,5 @@ function window_resized_end(){
 	window_resize_start_event_occured = false;
 	let contentWidth = document.body.clientWidth;
 	
-	audio_controller.stop();
+	//todo
 }
