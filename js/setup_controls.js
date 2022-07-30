@@ -5,6 +5,10 @@ function setup_controls(){
 		$("page_name").onclick = function() { info(); };
 		$("kofi_button").onclick = function() { kofi(); };
 		$("info_button").onclick = function() { info(); };
+
+		$("record").onclick = function() { audio_controller.startRecording(); };
+		$("stop").onclick = function() { audio_controller.stopRecording(); };
+		$("play").onclick = function() { audio_controller.playSound(); };
 	}
 
 	//setupVolumeSlider();

@@ -143,5 +143,10 @@ label {
     vertical-align: text-bottom
 }
 
+#oscilloscope {
+	width: 336px;
+	height: 166px;
+}
+
 
 
