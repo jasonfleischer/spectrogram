@@ -33,12 +33,18 @@ audio_controller.startRecording = function() {
 
 		//var source = audio_controller.ctx.createMediaStreamSource(mediaStreamObj);
         
-		const captureStream = audio1.captureStream();
+		/*const captureStream = audio1.captureStream();
 		log.e('captureStream:'+captureStream);
         let audioTracks = captureStream.getAudioTracks();
         log.e('audioTracks:'+audioTracks);
   		let source = audio_controller.ctx.createMediaStreamTrackSource(audioTracks[0]);
-  		log.e('source:'+source);
+  		log.e('source:'+source);*/
+
+
+  		var source = audio_controller.ctx.createMediaStreamSource(audio1.captureStream());
+  		/*
+
+  		*/
         
         source.connect(audio_controller.analyzerNode);
         oscilloscope.draw(audio_controller.analyzerNode);
