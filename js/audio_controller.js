@@ -42,6 +42,7 @@ audio_controller.startRecording = function() {
 
 
   		var source = audio_controller.ctx.createMediaStreamSource(audio1.captureStream());
+  		audio1.play();
   		/*
 
   		*/
