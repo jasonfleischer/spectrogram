@@ -36,7 +36,13 @@ audio_controller.startRecording = function() {
 			audio_controller.audioElement.autoplay = true;
 			audio_controller.audioElement.loop = true;
 
-			audio_controller.audioElement.oncanplay = function () { console.log('Can play'); }
+			log.e('loading2...');
+			audio_controller.audioElement.oncanplay = function () { 
+				console.log('Can play'); 
+				var mediaStreamObj = audio.captureStream();
+				audio_controller.onStreamAquired(mediaStreamObj);
+
+			}
 
 			log.e('loading...');
 			audio_controller.audioElement.addEventListener("load", function() {
