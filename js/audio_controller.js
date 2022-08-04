@@ -33,9 +33,9 @@ audio_controller.startRecording = function() {
 		} else {
 				log.e('from file');
 
-			//var audio = document.createElement("AUDIO");
-			//audio.src = "../audio/float.mp3";
-			let audio = document.getElementById('audio1');
+			var audio = document.createElement("AUDIO");
+			audio.src = "../audio/float.mp3";
+			//let audio = document.getElementById('audio1');
 			var source = audio_controller.ctx.createMediaStreamSource(audio.captureStream());
 			audio.play();
 
@@ -67,6 +67,6 @@ audio_controller.stopRecording = function() {
 
 	if(!use_microphone){
 		let audio1 = document.getElementById('audio1');
-		audio1.stop();
+		audio1.pause();
 	}
 }
