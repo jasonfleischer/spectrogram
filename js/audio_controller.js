@@ -4,7 +4,6 @@ audio_controller = {
 	analyzerNode: {},
 	compressorNode: {},
 	masterGainNode: {},
-
 	audioElement: {}
 };
 
@@ -15,7 +14,7 @@ audio_controller.startRecording = function() {
 	if(!audio_controller.setup){
 		audio_controller.ctx = new AudioContext();
 	    audio_controller.analyzerNode = audio_controller.ctx.createAnalyser();
-	   	audio_controller.analyzerNode.fftSize = 2048;// 256;//32;//2048;
+	   	audio_controller.analyzerNode.fftSize = 2048;//256;//32;//2048;
 	    audio_controller.analyzerNode.smoothingTimeConstant = 0;
 
 		if (use_microphone){
@@ -29,24 +28,15 @@ audio_controller.startRecording = function() {
 			    });
 
 		} else {
-			log.e('from file');
-
+			
 			audio_controller.audioElement = document.createElement("AUDIO");
 			audio_controller.audioElement.src = "audio/float.mp3";
 			audio_controller.audioElement.autoplay = true;
 			audio_controller.audioElement.loop = true;
-
-			log.e('loading3...');
 			audio_controller.audioElement.oncanplay = function () { 
-				console.log('Can play'); 
 				var mediaStreamObj = audio_controller.audioElement.captureStream();
 				audio_controller.onStreamAquired(mediaStreamObj);
-
 			}
-
-			//let audio = document.getElementById('audio1');
-			//var mediaStreamObj = audio.captureStream();
-			//audio_controller.onStreamAquired(mediaStreamObj);
 		}
 	 	audio_controller.setup = true;
 	} else {
@@ -57,28 +47,27 @@ audio_controller.startRecording = function() {
 }
 
 audio_controller.onStreamAquired = function(mediaStreamObj) {
+
 	var source = audio_controller.ctx.createMediaStreamSource(mediaStreamObj);
 	source.connect(audio_controller.analyzerNode);
+	spectro.connectSource(audio_controller.analyzerNode, audio_controller.ctx);
 	audio_controller.startVisualization();
 }
 
 audio_controller.startVisualization = function() {
-	log.e('startVisualization');
+
 	oscilloscope.draw(audio_controller.analyzerNode);
 	frequency_view.draw(audio_controller.analyzerNode);
-
-	spectro.connectSource(audio_controller.analyzerNode, audio_controller.ctx);
 	spectro.start();
 }
 
 audio_controller.stopRecording = function() {
 
-	spectro.pause();
 	oscilloscope.pause();
 	frequency_view.pause();
+	spectro.pause();
 
 	if(!use_microphone){
-		//let audio1 = document.getElementById('audio1');
 		audio_controller.audioElement.pause();
 	}
 }
