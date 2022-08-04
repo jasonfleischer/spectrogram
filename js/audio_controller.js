@@ -31,6 +31,7 @@ audio_controller.startRecording = function() {
 			    });
 
 		} else {
+				log.e('from file');
 
 			//var audio = document.createElement("AUDIO");
 			//audio.src = "../audio/float.mp3";
@@ -50,7 +51,7 @@ audio_controller.startRecording = function() {
 }
 
 audio_controller.startVisualization = function() {
-
+	log.e('startVisualization');
 	oscilloscope.draw(audio_controller.analyzerNode);
 	frequency_view.draw(audio_controller.analyzerNode);
 
