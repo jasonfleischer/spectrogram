@@ -32,9 +32,9 @@ audio_controller.startRecording = function() {
 
 		} else {
 
-			var audio = document.createElement("AUDIO");
-			audio.src = "../audio/float.mp3";
-			//let audio1 = document.getElementById('audio1');
+			//var audio = document.createElement("AUDIO");
+			//audio.src = "../audio/float.mp3";
+			let audio1 = document.getElementById('audio1');
 			var source = audio_controller.ctx.createMediaStreamSource(audio.captureStream());
 			audio.play();
 
