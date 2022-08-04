@@ -36,21 +36,13 @@ audio_controller.startRecording = function() {
 			audio_controller.audioElement.autoplay = true;
 			audio_controller.audioElement.loop = true;
 
-			log.e('loading2...');
+			log.e('loading3...');
 			audio_controller.audioElement.oncanplay = function () { 
 				console.log('Can play'); 
-				var mediaStreamObj = audio.captureStream();
+				var mediaStreamObj = audio_controller.audioElement.captureStream();
 				audio_controller.onStreamAquired(mediaStreamObj);
 
 			}
-
-			log.e('loading...');
-			audio_controller.audioElement.addEventListener("load", function() {
-				log.e("audio loaded");
-
-				var mediaStreamObj = audio.captureStream();
-				audio_controller.onStreamAquired(mediaStreamObj);
-			}, true);
 
 			//let audio = document.getElementById('audio1');
 			//var mediaStreamObj = audio.captureStream();
