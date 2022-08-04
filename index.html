@@ -45,26 +45,27 @@
 	<main>
 		<article>
 			<div id="spectrogram"></div>
-			<div id="oscilloscope"></div>
-			<canvas id="frequency_canvas" ></canvas>
+		</article>
+		<article>
 			<canvas id="spectoCanvas" width="500" height="400"></canvas>
 		</article>
 	</main>
 	<aside>
 		<article>
+			<div id="frequency_view"></div>
+		</article>
+		<article>
+			<div id="oscilloscope"></div>
+		</article>
+		<article>
 			<button id="record">Record</button>
 			<button id="stop">Stop</button>
-			
 		</article>
 		<article >
-			<audio id="audio" controls></audio>
-			
-			<button id="play">Play</button>
-
-		<audio id="audio1" controls="controls">
-            <source src="audio/float.mp3" type="audio/mp3" />
-	          Your browser does not support the audio tag.
-        </audio>	
+			<audio id="audio1" controls="controls">
+	            <source src="audio/float.mp3" type="audio/mp3" />
+		          Your browser does not support the audio tag.
+	        </audio>	
 		</article>
 	</aside>
 	<script src="js/bundle.js"></script>

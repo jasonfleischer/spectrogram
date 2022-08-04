@@ -1,17 +1,5 @@
 
-
-  function _isFunction(v) {
-    return typeof v === 'function';
-  }
-
-  function _result(v) {
-    return _isFunction(v) ? v() : v;
-  }
-
-  var toString = Object.prototype.toString;
-
-  class Spectrogram {
-
+class Spectrogram {
 
   constructor(canvas, options, colors){
     //if (!(this instanceof Spectrogram)) {

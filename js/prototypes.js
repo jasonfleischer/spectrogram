@@ -42,4 +42,14 @@ const removeChildren = (parent) => {
         parent.removeChild(parent.lastChild);
     }
 };
+
+function _isFunction(v) {
+    return typeof v === 'function';
+}
+
+function _result(v) {
+	return _isFunction(v) ? v() : v;
+}
+
+var toString = Object.prototype.toString;
 		

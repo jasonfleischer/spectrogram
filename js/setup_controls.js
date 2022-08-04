@@ -8,7 +8,6 @@ function setup_controls(){
 
 		$("record").onclick = function() { audio_controller.startRecording(); };
 		$("stop").onclick = function() { audio_controller.stopRecording(); };
-		$("play").onclick = function() { audio_controller.playSound(); };
 	}
 
 	//setupVolumeSlider();
