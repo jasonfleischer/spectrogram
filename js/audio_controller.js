@@ -34,10 +34,11 @@ audio_controller.startRecording = function() {
 				log.e('from file');
 
 			var audio = document.createElement("AUDIO");
-			audio.src = "../audio/float.mp3";
+			audio.src = "audio/float.mp3";
+			audio.autoplay = true;
 			//let audio = document.getElementById('audio1');
 			var source = audio_controller.ctx.createMediaStreamSource(audio.captureStream());
-			audio.play();
+			//audio.play();
 
 			source.connect(audio_controller.analyzerNode);
 			audio_controller.startVisualization();
