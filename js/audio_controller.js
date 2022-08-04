@@ -34,6 +34,8 @@ audio_controller.startRecording = function() {
 			audio_controller.audioElement = document.createElement("AUDIO");
 			audio_controller.audioElement.src = "audio/float.mp3";
 			audio_controller.audioElement.autoplay = true;
+
+			log.e('loading...');
 			audio_controller.audioElement.addEventListener("load", function() {
 				log.e("audio loaded");
 
