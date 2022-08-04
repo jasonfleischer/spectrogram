@@ -40,6 +40,10 @@ audio_controller.startRecording = function() {
 			audio.autoplay = true;
 			audio_controller.audioElement = audio;
 
+			audio.addEventListener("load", function() {
+				log.e("audio loaded")
+			}, true);
+
 			//let audio = document.getElementById('audio1');
 			var source = audio_controller.ctx.createMediaStreamSource(audio.captureStream());
 			//audio.play();
