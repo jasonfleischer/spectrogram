@@ -22,18 +22,14 @@ audio_controller.startRecording = function() {
 
 			navigator.mediaDevices.getUserMedia({ video: false, audio: true })
 		      	.then( (mediaStreamObj) => {
-			        
-					var source = audio_controller.ctx.createMediaStreamSource(mediaStreamObj);
-			        source.connect(audio_controller.analyzerNode);
-			        audio_controller.startVisualization();
-
+			        audio_controller.onStreamAquired(mediaStreamObj);
 			    })
 			    .catch( (err) => {
 			     	log.e("getUserMedia: " + err);
 			    });
 
 		} else {
-				log.e('from file');
+			log.e('from file');
 
 			var audio = document.createElement("AUDIO");
 			audio.src = "audio/float.mp3";
@@ -45,11 +41,8 @@ audio_controller.startRecording = function() {
 			}, true);
 
 			//let audio = document.getElementById('audio1');
-			var source = audio_controller.ctx.createMediaStreamSource(audio.captureStream());
-			//audio.play();
-
-			source.connect(audio_controller.analyzerNode);
-			audio_controller.startVisualization();
+			var mediaStreamObj = audio.captureStream();
+			audio_controller.onStreamAquired(mediaStreamObj);
 		}
 	 	audio_controller.setup = true;
 	} else {
@@ -57,6 +50,12 @@ audio_controller.startRecording = function() {
 		frequency_view.resume();
 		spectro.resume();
 	}
+}
+
+audio_controller.onStreamAquired = function(mediaStreamObj) {
+	var source = audio_controller.ctx.createMediaStreamSource(mediaStreamObj);
+	source.connect(audio_controller.analyzerNode);
+	audio_controller.startVisualization();
 }
 
 audio_controller.startVisualization = function() {
