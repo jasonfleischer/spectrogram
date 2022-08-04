@@ -24,10 +24,8 @@ class FrequencyView {
 
 	draw(analyzerNode) {
 
-		log.e("draww");
-
 		window.requestAnimationFrame(function() {
-			frequency_view.draw(analyzerNode);
+			frequency_view.draw(analyzerNode); // pass in self?
 		});
 
         const bufferLength = analyzerNode.frequencyBinCount; //half the value of fftSize

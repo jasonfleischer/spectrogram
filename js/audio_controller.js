@@ -6,7 +6,7 @@ audio_controller = {
 	masterGainNode: {}
 };
 
-var use_microphone = false;//true;
+var use_microphone = false;
 
 audio_controller.startRecording = function() {
 
@@ -34,7 +34,7 @@ audio_controller.startRecording = function() {
 
 			//var audio = document.createElement("AUDIO");
 			//audio.src = "../audio/float.mp3";
-			let audio1 = document.getElementById('audio1');
+			let audio = document.getElementById('audio1');
 			var source = audio_controller.ctx.createMediaStreamSource(audio.captureStream());
 			audio.play();
 
