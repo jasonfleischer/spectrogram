@@ -31,18 +31,19 @@ audio_controller.startRecording = function() {
 		} else {
 			log.e('from file');
 
-			var audio = document.createElement("AUDIO");
-			audio.src = "audio/float.mp3";
-			audio.autoplay = true;
-			audio_controller.audioElement = audio;
+			audio_controller.audioElement = document.createElement("AUDIO");
+			audio_controller.audioElement.src = "audio/float.mp3";
+			audio_controller.audioElement.autoplay = true;
+			audio_controller.audioElement.addEventListener("load", function() {
+				log.e("audio loaded");
 
-			audio.addEventListener("load", function() {
-				log.e("audio loaded")
+				var mediaStreamObj = audio.captureStream();
+				audio_controller.onStreamAquired(mediaStreamObj);
 			}, true);
 
 			//let audio = document.getElementById('audio1');
-			var mediaStreamObj = audio.captureStream();
-			audio_controller.onStreamAquired(mediaStreamObj);
+			//var mediaStreamObj = audio.captureStream();
+			//audio_controller.onStreamAquired(mediaStreamObj);
 		}
 	 	audio_controller.setup = true;
 	} else {
