@@ -3,7 +3,9 @@ audio_controller = {
 	ctx: {},
 	analyzerNode: {},
 	compressorNode: {},
-	masterGainNode: {}
+	masterGainNode: {},
+
+	audioElement: {}
 };
 
 var use_microphone = false;
@@ -36,6 +38,8 @@ audio_controller.startRecording = function() {
 			var audio = document.createElement("AUDIO");
 			audio.src = "audio/float.mp3";
 			audio.autoplay = true;
+			audio_controller.audioElement = audio;
+
 			//let audio = document.getElementById('audio1');
 			var source = audio_controller.ctx.createMediaStreamSource(audio.captureStream());
 			//audio.play();
@@ -67,7 +71,7 @@ audio_controller.stopRecording = function() {
 	frequency_view.pause();
 
 	if(!use_microphone){
-		let audio1 = document.getElementById('audio1');
-		audio1.pause();
+		//let audio1 = document.getElementById('audio1');
+		audio_controller.audioElement.pause();
 	}
 }
