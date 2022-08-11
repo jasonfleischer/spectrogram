@@ -1,12 +1,38 @@
 
 class Spectrogram {
 
-  constructor(canvas, options, colors){
+  constructor(id = "spectrogram", 
+              options = { audio: { enable: false }, canvas: { width: 400, height:400} },
+              colors){
+
     //if (!(this instanceof Spectrogram)) {
       //return new Spectrogram(canvas, options);
     //}
 
+    var root_view = $(id);
+    this.root_view = root_view;
+    root_view.style.border = '2px #494949 solid'
+
+    var canvas = document.createElement('canvas');
+    canvas.style.position = 'absolute';
+    canvas.style.background = '#000';
+
+
+   /// this.canvas.width = root_view.clientWidth;
+    //this.canvas.height = root_view.clientHeight;
+    canvas.style.width = root_view.clientWidth+'px';
+    canvas.style.height = root_view.clientHeight+'px';
+
+    //canvas.style.width = root_view.clientWidth+'px';
+    //canvas.style.height = root_view.clientHeight+'px';
+    root_view.appendChild(canvas);
+
+
     var baseCanvasOptions = options.canvas || {};
+
+    baseCanvasOptions.width = root_view.clientWidth;
+    baseCanvasOptions.height = root_view.clientHeight;
+
     this._audioEnded = null;
     this._paused = null;
     this._pausedAt = null;
@@ -18,10 +44,14 @@ class Spectrogram {
     this._baseCanvas = canvas;
     this._baseCanvasContext = this._baseCanvas.getContext('2d');
 
+    root_view.width = _result(baseCanvasOptions.width) || this._baseCanvas.width;
+    root_view.height = _result(baseCanvasOptions.height) || this._baseCanvas.height;
     this._baseCanvas.width = _result(baseCanvasOptions.width) || this._baseCanvas.width;
     this._baseCanvas.height = _result(baseCanvasOptions.height) || this._baseCanvas.height;
 
     window.onresize = function() {
+      root_view.width = _result(baseCanvasOptions.width) || this._baseCanvas.width;
+      root_view.height = _result(baseCanvasOptions.height) || this._baseCanvas.height;
       this._baseCanvas.width = _result(baseCanvasOptions.width) || this._baseCanvas.width;
       this._baseCanvas.height = _result(baseCanvasOptions.height) || this._baseCanvas.height;
     }.bind(this);
@@ -108,6 +138,10 @@ class Spectrogram {
   };
 
   connectSource(audioBuffer, audioContext) {
+
+    log.e("connectSource")
+
+    log.e(audioBuffer)
     var source = this._sources.audioBufferStream || {};
 
     // clear current audio process
@@ -125,10 +159,13 @@ class Spectrogram {
 
       if (!source.canvasContext) {
         var canvas = document.createElement('canvas');
+        this.root_view.width = this._baseCanvas.width;
+        this.root_view.height = this._baseCanvas.height;
         canvas.width = this._baseCanvas.width;
         canvas.height = this._baseCanvas.height;
         canvasContext = canvas.getContext('2d');
 
+        log.e('temp canvas init')
         var tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
         tempCanvas.height = canvas.height;
@@ -157,6 +194,7 @@ class Spectrogram {
   };
 
   start(offset) {
+    log.e("start")
     var source = this._sources.audioBufferStream;
     var sourceMedia = this._sources.userMediaStream;
 
@@ -171,6 +209,8 @@ class Spectrogram {
     if (sourceMedia && sourceMedia.analyser) {
       source = sourceMedia;
       var canvas = document.createElement('canvas');
+      this.root_view.width = this._baseCanvas.width;
+      this.root_view.height = this._baseCanvas.height;
       canvas.width = this._baseCanvas.width;
       canvas.height = this._baseCanvas.height;
       var canvasContext = canvas.getContext('2d');
@@ -200,9 +240,15 @@ class Spectrogram {
   };
 
   resume(offset) {
-    var source = this._sources[Object.keys(this._sources)[0]];
+     log.e("resume")
+    log.e(offset)
+
+    var source = this._sources;
+    //var source = this._sources[Object.keys(this._sources)[0]];
+     log.e(source)
     this._paused = false;
     if (this._pausedAt) {
+      
       this.connectSource(source.audioBuffer, source.audioContext);
       this.start(offset || (this._pausedAt / 1000));
     }

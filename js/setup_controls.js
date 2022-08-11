@@ -6,8 +6,8 @@ function setup_controls(){
 		$("kofi_button").onclick = function() { kofi(); };
 		$("info_button").onclick = function() { info(); };
 
-		$("record").onclick = function() { audio_controller.startRecording(); };
-		$("stop").onclick = function() { audio_controller.stopRecording(); };
+		$("start").onclick = function() { audio_controller.start(); };
+		$("stop").onclick = function() { audio_controller.stop(); };
 	}
 
 	//setupVolumeSlider();

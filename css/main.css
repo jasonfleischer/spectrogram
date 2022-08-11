@@ -143,9 +143,13 @@ label {
     vertical-align: text-bottom
 }
 
-#oscilloscope , #frequency_view, #spectrogram{
+#oscilloscope , #frequency_view{
 	width: 336px;
 	height: 166px;
 }
 
+#spectrogram, #spectrogram2, #spectrogram3{
+	width: 336px;
+	height: 250px;
+}
 
