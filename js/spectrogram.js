@@ -1,5 +1,5 @@
 
-class Spectrogram {
+/*class Spectrogram {
 
   constructor(id = "spectrogram", 
               options = { audio: { enable: false }, canvas: { width: 400, height:400} },
@@ -299,7 +299,7 @@ class Spectrogram {
 
     return color;
   };
-}
+}*/
   /*if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
       exports = module.exports = Spectrogram;

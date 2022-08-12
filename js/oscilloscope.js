@@ -23,9 +23,7 @@ class Oscilloscope {
 
 	draw(analyserNode) {
 
-		window.requestAnimationFrame(function() {
-	        oscilloscope.draw(analyserNode); // pass in self?
-	    });
+	    window.requestAnimationFrame(this.draw.bind(this, analyserNode))
 
 	    const bufferLength = analyserNode.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);

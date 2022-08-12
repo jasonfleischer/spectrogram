@@ -5,27 +5,7 @@ var frequency_view = {};
 var spectrogram2 = {};
 var spectrogram3 = {};
 
-//import chroma from "chroma-js";
-var spectro = new Spectrogram();//'spectrogram', 
-   // {
-		/*colors: function(steps) {
-			var baseColors = [[0,0,255,1], [0,255,255,1], [0,255,0,1], [255,255,0,1], [ 255,0,0,1]];
-			var positions = [0, 0.15, 0.30, 0.50, 0.75];
-
-			var scale = new chroma.scale(baseColors, positions)
-			domain([0, steps]);
-
-			var colors = [];
-
-			for (var i = 0; i < steps; ++i) {
-			var color = scale(i);
-				colors.push(color.hex());
-			}
-
-			return colors;
-		}*/
-//	}
-//);
+//var spectro = new Spectrogram();
 
 init = function() {
 
@@ -34,8 +14,8 @@ init = function() {
 
 	oscilloscope = new Oscilloscope();
 	frequency_view = new FrequencyView();
-	spectrogram2 = new Spectrogram2("spectrogram2");
-	spectrogram3 = new Spectrogram2("spectrogram3");
+	spectrogram2 = new Spectrogram2("spectrogram2", true, false);
+	spectrogram3 = new Spectrogram2("spectrogram3", false, true);
 
 	window_resized_end();
 	setup_keyboard_listeners();

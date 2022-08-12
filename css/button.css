@@ -40,3 +40,10 @@ button.selected {
     color: var(--secondary-background-color);
     background-color: var(--primary-font-color);
 }
+
+button:disabled,
+button[disabled]{
+  border: 1px solid #333;
+  color: #333;
+  cursor: not-allowed;
+}

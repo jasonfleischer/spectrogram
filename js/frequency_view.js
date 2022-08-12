@@ -24,9 +24,7 @@ class FrequencyView {
 
 	draw(analyzerNode) {
 
-		window.requestAnimationFrame(function() {
-			frequency_view.draw(analyzerNode); // pass in self?
-		});
+		window.requestAnimationFrame(this.draw.bind(this, analyzerNode))
 
         const bufferLength = analyzerNode.frequencyBinCount; //half the value of fftSize
 		const dataArray = new Float32Array(bufferLength);

@@ -148,7 +148,12 @@ label {
 	height: 166px;
 }
 
-#spectrogram, #spectrogram2, #spectrogram3{
+#spectrogram2{
+	width: 336px;
+	height: 512px;
+}
+
+#spectrogram, #spectrogram3{
 	width: 336px;
 	height: 250px;
 }
