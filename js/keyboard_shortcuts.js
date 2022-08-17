@@ -7,6 +7,8 @@ function setup_keyboard_listeners() {
 		var code = event.code;
 		if (code === 'Space') {
 			//todo
+			$("stop").disabled = false;
+			audio_controller.start();
 		} else {
 			event.preventDefault();
 		}

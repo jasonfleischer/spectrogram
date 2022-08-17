@@ -16,7 +16,8 @@ audio_controller.start = function() {
 		audio_controller.ctx = new AudioContext();
 		audio_controller.analyzerNode = audio_controller.ctx.createAnalyser();
 	   	audio_controller.analyzerNode.smoothingTimeConstant = 0;
-	   	audio_controller.analyzerNode.fftSize = 1024;//2048;//256;//32;//2048;
+	   	audio_controller.analyzerNode.fftSize = 1024;
+	   	//32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, and 32768
 
 		if (use_microphone){
 
