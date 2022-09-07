@@ -4,7 +4,6 @@ audio_controller = {
 	analyzerNode: {},
 	compressorNode: {},
 	masterGainNode: {},
-	scriptNode: {},
 	audioElement: {}
 };
 

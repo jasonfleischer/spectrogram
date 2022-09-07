@@ -1,9 +1,9 @@
-const CACHE_NAME = 'v3';
+const CACHE_NAME = 'v4';
 const ROOT_DIRECTORY_NAME = "spectrogram";
 const CACHE = [
         '/'+ROOT_DIRECTORY_NAME+'/index.html',
         '/'+ROOT_DIRECTORY_NAME+'/css/bundle.css',
-        '/j'+ROOT_DIRECTORY_NAME+'/js/bundle.js'
+        '/'+ROOT_DIRECTORY_NAME+'/js/bundle.js'
       ];
 	
 self.addEventListener('install', function(event) {

@@ -14,7 +14,7 @@ init = function() {
 
 	oscilloscope = new Oscilloscope();
 	frequency_view = new FrequencyView();
-	spectrogram2 = new Spectrogram2("spectrogram2", true, false);
+	spectrogram2 = new Spectrogram2("spectrogram2", true, false, minimumFrequency = 0, maximumFrequency = 4200);
 	spectrogram3 = new Spectrogram2("spectrogram3", false, true);
 
 	window_resized_end();

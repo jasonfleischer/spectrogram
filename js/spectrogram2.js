@@ -1,7 +1,7 @@
 class Spectrogram2 {
 
-	constructor(id = "spectrogram", useHeatMapColors = true, doFundamentalFrequencyDetection = false){
-		this.drawing = false;
+	constructor(id = "spectrogram", useHeatMapColors = true, doFundamentalFrequencyDetection = false,
+		minimumFrequency = 0, maximumFrequency = 22050){
 
 		this.highlightThresholdPercent = 80;
 		this.buildView(id);
@@ -9,29 +9,26 @@ class Spectrogram2 {
 		this.DECIBEL_MAX = 255.0;
 		this.canvasCtx = this.canvas.getContext("2d");
 
-
 		this.drawing = true;
 		this.dof0Detection = doFundamentalFrequencyDetection;
 		this.useHeatMapColors = useHeatMapColors;
 		this.colors = useHeatMapColors ? this.generateHeatMapColors() : this.generateDefaultColors();
 
-		this.i = 0;
+		this.canvasHeightSetup = false;
 
-		this.foo = false;
-
-		this.frequenciesDetected = [];
+		this.minimumFrequency = minimumFrequency;
+		this.maximumFrequency = maximumFrequency;
 	}
 
 	buildView(id) {
 
 		var root_view = $(id);
-		root_view.style.border = '2px #494949 solid'
+		root_view.style.border = '2px #49494955 solid'
 
 		this.canvas = document.createElement('canvas');
 		this.canvas.style.position = 'absolute';
 		this.canvas.style.background = '#000';
 		this.canvas.width = root_view.clientWidth;
-		//this.canvas.height = 512;//root_view.clientHeight;
 		this.canvas.style.width = root_view.clientWidth+'px';
 		this.canvas.style.height = root_view.clientHeight+'px';
 
@@ -46,13 +43,11 @@ class Spectrogram2 {
 		const dataArray = new Uint8Array(bufferLength); // size is half of fftSize 
 		analyserNode.getByteFrequencyData(dataArray);
 
-		if(!this.foo){
-			this.canvas.height = dataArray.length;
-			this.foo = true;
+		if(!this.canvasHeightSetup){
+			this.canvas.height = this.getCanvasHeight(sampleRate, dataArray.length);
+			this.canvasHeightSetup = true;
 		}
-		//log.e("mD; "+analyserNode.minDecibels+' '+analyserNode.maxDecibels)
-
-		this.drawWithArray(dataArray, sampleRate, this.colors);
+		this.drawWithArray(dataArray, sampleRate, this.colors);		
 	}
 	
 	drawWithArray(array, sampleRate, colors) {
@@ -62,48 +57,32 @@ class Spectrogram2 {
 			var canvasContext = this.canvas.getContext("2d");
 						
 			var width = canvas.width;
-			var height = array.length;
+			var height = this.getCanvasHeight(sampleRate, array.length);
 			var tempCanvas = canvas;
 			var tempCanvasContext = canvasContext;
 
 			tempCanvasContext.drawImage(canvas, 0, 0, width, height);
 
-			var f0frequencyPecentagePair = [];
-			var drawnf0Higlight=false;
-			var drawingf0Higlight=false;
+			//freq i=0->0 Hz  i=512->sample_rate/2 = 44100/2= 22050Hz
+			// piano A0 27.5 - C8 4186Hz
 
-			var peakIndexes = [];
+			var minIndex = Math.max(Math.floor( (this.minimumFrequency/(sampleRate/2.0)) *array.length), 0);
+			var maxIndex = Math.min(Math.ceil( (this.maximumFrequency/(sampleRate/2.0)) *array.length), 22050);
 
-			
-
-			for (var i = 0; i < array.length; i++) { // size is half of fftSize 
+			for (var i = minIndex; i <= maxIndex; i++) { // size is half of fftSize 
 				var decibelValue = array[i]; // 0-255
 				var decibelPercentValue = decibelValue/this.DECIBEL_MAX*100.0;
-
-				//freq i=0->0 Hz  i=512->sample_rate/2 = 44100/2= 22050Hz
-				// piano A0 27.5 - C8 4186Hz
-
-
-
-				
+				var frequency = (i/(array.length-1))*(sampleRate/2.0);
 
 				canvasContext.fillStyle = getColor(decibelPercentValue, colors);
-				canvasContext.fillRect(width - 1, height - i, 1, 1);
+				canvasContext.fillRect(width - 1, height - i + minIndex, 1, 1);
 
 				if (this.dof0Detection){
-
-					var frequency = (i/this.DECIBEL_MAX)*(sampleRate/2.0);
 
 					if(decibelPercentValue > this.highlightThresholdPercent) {
 
 						if(isPeak(i, array)){
-
-							peakIndexes.push(i);
-							
-
-							
-
-
+						
 							var alpha = (decibelPercentValue-this.highlightThresholdPercent)/(100-this.highlightThresholdPercent);
 							canvasContext.fillStyle = this.useHeatMapColors?"#fff":'rgba(' + [255,0,0,alpha/2].toString() + ')';
 							canvasContext.fillRect(width - 1, height - i - 1, 1, 1);
@@ -112,61 +91,25 @@ class Spectrogram2 {
 							canvasContext.fillRect(width - 1, height - i, 1, 1);
 							i++;
 						}
-
-
-
 					}
-					/*if (!drawnf0Higlight && drawingf0Higlight && decibelPercentValue <= this.highlightThresholdPercent ){
-						drawnf0Higlight = true;
-						//log.i("------");
-					}
-
-					if (!drawnf0Higlight && decibelPercentValue > this.highlightThresholdPercent){
-
-						var alpha = (decibelPercentValue-this.highlightThresholdPercent)/(100-this.highlightThresholdPercent);
-						canvasContext.fillStyle = this.useHeatMapColors?"#fff":'rgba(' + [255,0,0,alpha].toString() + ')';
-						canvasContext.fillRect(width - 1, height - i, 1, 1);
-						
-						
-						//log.i(i + " - " + frequency + "Hz - "+decibelPercentValue);
-
-						f0frequencyPecentagePair.push(frequency, decibelPercentValue);
-						drawingf0Higlight = true;
-					}*/
-					
 				}
 
 				// rm later draw extra
-				if(i ==1){
+				if(i ===minIndex){
 					canvasContext.fillStyle = "#f67";
 					canvasContext.fillRect(width - 1, height - i, 1, 1);
-
-				}else if(i==array.length-1){
+					//log.e("min"+i);
+				}else if(i===maxIndex){
 					canvasContext.fillStyle = getColor(this.i, colors);
 					canvasContext.fillRect(width - 1, height - i, 1, 1);
 
 					this.i =(this.i+1)%100;
+					//log.e("max"+i);
 				}
-			}
-			if(peakIndexes.length>0){
-				var firstIndex = peakIndexes[0];
-				var interpolatedFrequency = parabolicPeakInterpolation(firstIndex, array, sampleRate);
-				log.i('f: '+interpolatedFrequency)
-
-				this.frequenciesDetected.push(interpolatedFrequency);
-				if(this.frequenciesDetected.length == 10){
-					log.i('fs: '+this.frequenciesDetected);
-					log.e('f avg: '+average(this.frequenciesDetected));
-					this.frequenciesDetected = [];
-				}
-			} else {
-
-				//log.e('f: '+interpolatedFrequency)
-				this.frequenciesDetected = [];
 			}
 			
 			canvasContext.translate(-1, 0);
-			canvasContext.drawImage(tempCanvas, 0, 0, width, height, 0, 0, width, height);
+			canvasContext.drawImage(tempCanvas, 0, 0, width, height + minIndex, 0, 0, width, height + minIndex);
 			canvasContext.setTransform(1, 0, 0, 1, 0, 0);
 		}
 
@@ -179,36 +122,17 @@ class Spectrogram2 {
 			return decibelValue>previousDecibelValue && decibelValue>nextDecibelValue;
 		}
 
-		function parabolicPeakInterpolation(i, array, sampleRate){
-			if(i == 0 || i == array.length-1)
-				return false;
-
-			var previousDecibelValue = array[i-1];
-			var decibelValue = array[i];
-			var nextDecibelValue = array[i+1];
-
-			var interpolatedIndex = i + 0.5*(previousDecibelValue-nextDecibelValue)/
-											(previousDecibelValue-2*decibelValue+nextDecibelValue);
-			var DECIBEL_MAX = 255.0;
-			var frequency = (interpolatedIndex/DECIBEL_MAX)*(sampleRate/2.0);
-			return frequency;
-
-		}
-
 		function getColor(decibelPercentValue, colors) {
 			var index = parseInt(decibelPercentValue / 100.0 * (colors.length-1));
-			var color = colors[index];
-			return color;
+			return colors[index];
 		}
+	}
 
-		function average(array){
-			var sum = 0.0;
-			for(var i = 0; i < array.length; i++){
-				sum =+ array[i];
-			}
-			return sum / array.length;
+	getCanvasHeight(sampleRate, arrayLength){
 
-		}
+		var maxIndex = Math.min(Math.ceil( (this.maximumFrequency/(sampleRate/2.0)) *arrayLength), 22050);
+		var minIndex = Math.max(Math.floor( (this.minimumFrequency/(sampleRate/2.0)) *arrayLength), 0);
+		return maxIndex - minIndex;
 	}
 	
 	generateDefaultColors() {
@@ -224,76 +148,55 @@ class Spectrogram2 {
 			var v = (Math.sin((frequency * i) + slice) * amplitude + center) >> 0;
 			colors.push('rgba(' + [v,v,v,1].toString() + ')');
 		}
-
 		return colors;
 	}
 
 	generateHeatMapColors() {
+
+		function getColors(fromColor = [0,0,0], toColor =[255,255,255], numberOfColors = 100){
+
+			function getColorValue(startValue, endValue, percent){
+				if(startValue === endValue){
+					return startValue;
+				} else if ( startValue > endValue){
+					return startValue - (percent * (startValue - endValue));
+				} else {
+					return startValue + (percent * (endValue - startValue));
+				}
+			}
+
+			var colors = [];
+
+			var startRedValue = fromColor[0];
+			var startGreenValue = fromColor[1];
+			var startBlueValue = fromColor[2];
+
+			var endRedValue = toColor[0];
+			var endGreenValue = toColor[1];
+			var endBlueValue = toColor[2];
+			
+			for (var i= 0; i<numberOfColors; i++) {
+				var percent = i/(numberOfColors-1);
+				var redValue = getColorValue(startRedValue, endRedValue, percent);
+				var greenValue = getColorValue(startGreenValue, endGreenValue, percent);
+				var blueValue = getColorValue(startBlueValue, endBlueValue, percent);
+				colors.push('rgba(' + [redValue, greenValue, blueValue, 1].toString() + ')');
+			}
+			return colors;
+		}
 		
-		var colors = [];
+		const black = [0,0,0];
+		const purple = [64,0,64];
+		const blue = [0,0,255];
+		const green  = [0,170,0];
+		const orange = [255,170,0];
+		const red = [255,0,0]
 
-		const redDivisor = 4;
-		const blueDivisor = 1;
-		const greenDivisor = 1.5;
-
-		var redValue = 0;
-		var greenValue = 0;
-		var blueValue = 0;
-
-		var lastRedValue = redValue;
-		var lastBlueValue = blueValue;
-
-		const purpleStart = 1;
-		const purpleEnd = 10;
-		for (var i = purpleStart; i <= purpleEnd; i++) {
-			redValue = (1.0-(purpleEnd-i)/(purpleEnd-purpleStart))*255.0/redDivisor;
-			greenValue = 0;
-			blueValue = redValue;
-			colors.push('rgba(' + [redValue, greenValue, blueValue,1].toString() + ')');
-		}
-
-		lastRedValue = redValue
-		lastBlueValue = blueValue
-
-		const blueStart = 11;
-		const blueEnd = 45;
-		for (var i = blueStart; i <= blueEnd; i++) {
-			redValue = lastRedValue - ((1-(blueEnd-i)/(blueEnd-blueStart))*lastRedValue);
-			greenValue = 0;
-			blueValue = lastBlueValue + ((1-(blueEnd-i)/(blueEnd-blueStart))*lastBlueValue);
-			colors.push('rgba(' + [redValue, greenValue, blueValue, 1].toString() + ')');
-		}
-
-		lastBlueValue = blueValue
-
-		const greenStart = 46;
-		const greenEnd = 56;
-		for (var i = greenStart; i <= greenEnd; i++) {
-			redValue = 0;
-			greenValue = (1.0-(greenEnd-i)/(greenEnd-greenStart))*255.0/greenDivisor;
-			blueValue = lastBlueValue - ((1-(greenEnd-i)/(greenEnd-greenStart))*lastBlueValue);
-			colors.push('rgba(' + [redValue, greenValue, blueValue,1].toString() + ')');
-		}
-
-		const yellowStart = 57;
-		const yellowEnd = 74;
-		for (var i = yellowStart; i <= yellowEnd; i++) {
-			redValue = (1.0-(yellowEnd-i)/(yellowEnd-yellowStart))*255.0;
-			greenValue = 255/greenDivisor;
-			blueValue = 0;
-			colors.push('rgba(' + [redValue, greenValue, blueValue,1].toString() + ')');
-		}
-
-		const redStart = 75;
-		const redEnd = 100;
-		for (var i = redStart; i <= redEnd; i++) {
-			redValue = 255;
-			greenValue = (redEnd-i)/(redEnd-redStart)*255.0/greenDivisor;
-			blueValue = 0;
-			colors.push('rgba(' + [redValue, greenValue, blueValue, 1].toString() + ')');
-		}		
-
-		return colors;
+		return [].concat(getColors(black, purple, 15), 
+						getColors(purple, blue, 35),
+						getColors(blue, green, 10),
+						getColors(green, orange, 20),
+						getColors(orange, red, 20));
 	}
 
 	pause(){
@@ -303,6 +206,4 @@ class Spectrogram2 {
 	resume(){
 		this.drawing = true;
 	}
-
-	
 }
