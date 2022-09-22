@@ -26,7 +26,7 @@ class Spectrogram {
 	buildView() {
 
 		var root_view = $(this.id);
-		
+
 		this.canvas = document.createElement('canvas');
 		this.canvas.style.position = 'absolute';
 		this.canvas.style.background = this.darkMode ? '#000': '#FFF';
@@ -64,9 +64,6 @@ class Spectrogram {
 			var tempCanvasContext = canvasContext;
 
 			tempCanvasContext.drawImage(canvas, 0, 0, width, height);
-
-			//freq i=0->0 Hz  i=512->sample_rate/2 = 44100/2= 22050Hz
-			// piano A0 27.5 - C8 4186Hz
 
 			var minIndex = Math.max(Math.floor( (this.minimumFrequency/(sampleRate/2.0)) *array.length), 0);
 			var maxIndex = Math.min(Math.ceil( (this.maximumFrequency/(sampleRate/2.0)) *array.length), 22050);
