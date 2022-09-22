@@ -1,37 +1,29 @@
 storage = {};
 
-/*storage.VOLUME_KEY = "JUST_INTONATION_VOLUME_KEY";
-storage.get_volume = function(default_value){
-	return storage.get(storage.VOLUME_KEY, default_value);
+storage.SPECTROGRAM_MAX_FREQUENCY_KEY = "SPECTROGRAM_MAX_FREQUENCY_KEY";
+storage.get_max_frequency = function(default_value = 22050){
+	return storage.get(storage.SPECTROGRAM_MAX_FREQUENCY_KEY, default_value);
 };
-storage.set_volume = function(value){
-	localStorage.setItem(storage.VOLUME_KEY, value);
-};
-
-storage.JUST_INTONATION_PRESET_INDEX = "JUST_INTONATION_PRESET_INDEX";
-storage.get_preset_index = function(default_value){
-	return storage.get(storage.JUST_INTONATION_PRESET_INDEX, default_value);
-};
-storage.set_preset_index = function(value){
-	localStorage.setItem(storage.JUST_INTONATION_PRESET_INDEX, value);
+storage.set_max_frequency = function(value){
+	localStorage.setItem(storage.SPECTROGRAM_MAX_FREQUENCY_KEY, value);
 };
 
-storage.JUST_INTONATION_ROOT_NOTE = "JUST_INTONATION_ROOT_NOTE";
-storage.get_root_note = function(default_value){
-	return storage.get(storage.JUST_INTONATION_ROOT_NOTE, default_value);
-};
-storage.set_root_note = function(value){
-	localStorage.setItem(storage.JUST_INTONATION_ROOT_NOTE, value);
-};
-
-storage.JUST_INTONATION_IS_JUST_INTONATION = "JUST_INTONATION_IS_JUST_INTONATION";
-storage.is_just_intonation = function(default_value){
-	var value = storage.get(storage.JUST_INTONATION_IS_JUST_INTONATION, default_value);
+storage.SPECTROGRAM_IS_COLORED = "SPECTROGRAM_IS_COLORED";
+storage.is_colored = function(default_value = true){
+	var value = storage.get(storage.SPECTROGRAM_IS_COLORED, default_value);
 	return Boolean(value === "true" || value === true);
 };
-storage.set_is_just_intonation = function(value){
-	localStorage.setItem(storage.JUST_INTONATION_IS_JUST_INTONATION, value);
-};*/
+storage.set_is_colored = function(value){
+	localStorage.setItem(storage.SPECTROGRAM_IS_COLORED, value);
+};
+
+storage.SPECTROGRAM_FFT_SIZE = "SPECTROGRAM_FFT_SIZE";
+storage.get_fft_size = function(default_value = 1024){
+	return storage.get(storage.SPECTROGRAM_FFT_SIZE, default_value);
+};
+storage.set_fft_size = function(value){
+	localStorage.setItem(storage.SPECTROGRAM_FFT_SIZE, value);
+};
 
 storage.get = function(key, default_value) {
 	let result = localStorage.getItem(key);

@@ -26,7 +26,7 @@
 </head>
 <body>
 	<header>
-		<div id="page_name" class="no_select">Spectrogram - Under Construction</div>
+		<div id="page_name" class="no_select">Spectrogram</div>
 		<button id="kofi_button">
 			<img src="img/kofi.svg" width="25" height="25" alt="Buy Me a Coffee at ko-fi.com" />
 			<span >Support the Developer</span>
@@ -43,30 +43,57 @@
 		</div>
 	</div>
 	<main>
-		
-		<!--<article>
+		<article>
 			<div id="spectrogram"></div>
-		</article>-->
-		<article>
-			<div id="spectrogram2"></div>
 		</article>
-		<article>
-			<div id="spectrogram3"></div>
-		</article>
-		<article>
-			<button id="start">Start</button>
-			<button id="stop" disabled>Stop</button>
-		</article>
+		
 	</main>
 	<aside>
 		<article>
+			<table>
+				<tr>
+					<button id="start">Click here to begin</button>
+					<button id="resume" disabled>Play</button>
+					<button id="pause" disabled>Pause</button>
+				</tr>
+				<tr>
+					<td><label id="maxFrequency" for="maxFrequencyRange">Max Freq</label></td>
+					<td>
+						<input type="range" min="1900" max="22050" value="4200" step="50" class="slider" id="maxFrequencyRange" />
+					</td>
+				</tr>
+				<tr id="is_colored" class="checkbox-row">
+					<td>
+						<label id="is_colored_label" for="is_colored_checkbox">Colors</label>
+					</td>
+					<td>
+						<div id="is_colored_checkbox_switch" class="switch">
+							<input id="is_colored_checkbox" type="checkbox"/>
+							<span class="switch_track round" tabindex="0"></span>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td id="fft_size"><label for="fft_size_select">FFT Size</label></td>
+					<td><select id="fft_size_select">
+						<option value="32">32</option>
+						<option value="64">64</option>
+						<option value="128">128</option>
+						<option value="512">512</option>
+						<option value="1024" selected="selected">1024</option>
+						<option value="2048">2048</option>
+						<option value="4096">4096</option>
+						<option value="8192">8192</option>
+						<option value="16384">16384</option>
+						<option value="32768">32768</option>
+					</select></td>
+				</tr>
+			</table>
+		</article>
+		<article>
 			<div id="frequency_view"></div>
-		</article>
-		<article>
+			<br>
 			<div id="oscilloscope"></div>
-		</article>
-		
-		<article>
 		</article>
 	</aside>
 	<script src="js/bundle.js"></script>

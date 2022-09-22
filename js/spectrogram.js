@@ -1,315 +1,220 @@
-
-/*class Spectrogram {
-
-  constructor(id = "spectrogram", 
-              options = { audio: { enable: false }, canvas: { width: 400, height:400} },
-              colors){
-
-    //if (!(this instanceof Spectrogram)) {
-      //return new Spectrogram(canvas, options);
-    //}
-
-    var root_view = $(id);
-    this.root_view = root_view;
-    root_view.style.border = '2px #494949 solid'
-
-    var canvas = document.createElement('canvas');
-    canvas.style.position = 'absolute';
-    canvas.style.background = '#000';
-
-
-   /// this.canvas.width = root_view.clientWidth;
-    //this.canvas.height = root_view.clientHeight;
-    canvas.style.width = root_view.clientWidth+'px';
-    canvas.style.height = root_view.clientHeight+'px';
-
-    //canvas.style.width = root_view.clientWidth+'px';
-    //canvas.style.height = root_view.clientHeight+'px';
-    root_view.appendChild(canvas);
-
-
-    var baseCanvasOptions = options.canvas || {};
-
-    baseCanvasOptions.width = root_view.clientWidth;
-    baseCanvasOptions.height = root_view.clientHeight;
-
-    this._audioEnded = null;
-    this._paused = null;
-    this._pausedAt = null;
-    this._startedAt = null;
-    this._sources = {
-      audioBufferStream: null,
-      userMediaStream: null
-    };
-    this._baseCanvas = canvas;
-    this._baseCanvasContext = this._baseCanvas.getContext('2d');
-
-    root_view.width = _result(baseCanvasOptions.width) || this._baseCanvas.width;
-    root_view.height = _result(baseCanvasOptions.height) || this._baseCanvas.height;
-    this._baseCanvas.width = _result(baseCanvasOptions.width) || this._baseCanvas.width;
-    this._baseCanvas.height = _result(baseCanvasOptions.height) || this._baseCanvas.height;
-
-    window.onresize = function() {
-      root_view.width = _result(baseCanvasOptions.width) || this._baseCanvas.width;
-      root_view.height = _result(baseCanvasOptions.height) || this._baseCanvas.height;
-      this._baseCanvas.width = _result(baseCanvasOptions.width) || this._baseCanvas.width;
-      this._baseCanvas.height = _result(baseCanvasOptions.height) || this._baseCanvas.height;
-    }.bind(this);
-
-    var audioOptions = options.audio || {};
-    this.audio = audioOptions;
-
-    var colors = [];
-
-    if (typeof options.colors === 'function') {
-      colors = options.colors(275);
-    } else {
-      colors = this._generateDefaultColors(275);
-    }
-
-    this._colors = colors;
-
-    this._baseCanvasContext.fillStyle = this._getColor(0);
-    this._baseCanvasContext.fillRect(0, 0, this._baseCanvas.width, this._baseCanvas.height);
-  }
-
-  _init() {
-    var source = this._sources.audioBufferStream;
-    source.scriptNode = source.audioContext.createScriptProcessor(2048, 1, 1);
-    source.scriptNode.connect(source.audioContext.destination);
-    source.scriptNode.onaudioprocess = function(event) {
-      var array = new Uint8Array(source.analyser.frequencyBinCount);
-      source.analyser.getByteFrequencyData(array);
-
-      this._draw(array, source.canvasContext);
-    }.bind(this);
-
-    source.sourceNode.onended = function() {
-      this.stop();
-    }.bind(this);
-
-    source.analyser = source.audioContext.createAnalyser();
-    source.analyser.smoothingTimeConstant = 0;
-    source.analyser.fftSize = 1024;
-
-    source.analyser.connect(source.scriptNode);
-    source.sourceNode.connect(source.analyser);
-    if (this.audio.enable) {
-      source.sourceNode.connect(source.audioContext.destination);
-    }
-  };
-
-  _draw(array, canvasContext) {
-      if (this._paused) {
-        return false;
-      }
-
-      var canvas = canvasContext.canvas;
-      var width = canvas.width;
-      var height = canvas.height;
-      var tempCanvasContext = canvasContext._tempContext;
-      var tempCanvas = tempCanvasContext.canvas;
-      tempCanvasContext.drawImage(canvas, 0, 0, width, height);
-
-      for (var i = 0; i < array.length; i++) {
-        var value = array[i];
-        canvasContext.fillStyle = this._getColor(value);
-        if (this._audioEnded) {
-          canvasContext.fillStyle = this._getColor(0);
-        }
-        canvasContext.fillRect(width - 1, height - i, 1, 1);
-      }
-
-      canvasContext.translate(-1, 0);
-      // draw prev canvas before translation
-      canvasContext.drawImage(tempCanvas, 0, 0, width, height, 0, 0, width, height);
-      canvasContext.drawImage(tempCanvas, 0, 0, width, height, 0, 0, width, height);
-      // reset transformation matrix
-      canvasContext.setTransform(1, 0, 0, 1, 0, 0);
-
-      this._baseCanvasContext.drawImage(canvas, 0, 0, width, height);
-  };
-
-  _startMediaStreamDraw(analyser, canvasContext) {
-    window.requestAnimationFrame(this._startMediaStreamDraw.bind(this, analyser, canvasContext));
-    var audioData = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(audioData);
-    this._draw(audioData, canvasContext);
-  };
-
-  connectSource(audioBuffer, audioContext) {
-
-    log.e("connectSource")
-
-    log.e(audioBuffer)
-    var source = this._sources.audioBufferStream || {};
-
-    // clear current audio process
-    if (toString.call(source.scriptNode) === '[object ScriptProcessorNode]') {
-      source.scriptNode.onaudioprocess = null;
-    }
-
-    if (toString.call(audioBuffer) === '[object AudioBuffer]') {
-      audioContext = (!audioContext && source.audioBuffer.context) || (!audioContext && source.audioContext) || audioContext;
-
-      var sourceNode = audioContext.createBufferSource();
-      sourceNode.buffer = audioBuffer;
-
-      var canvasContext = source.canvasContext;
-
-      if (!source.canvasContext) {
-        var canvas = document.createElement('canvas');
-        this.root_view.width = this._baseCanvas.width;
-        this.root_view.height = this._baseCanvas.height;
-        canvas.width = this._baseCanvas.width;
-        canvas.height = this._baseCanvas.height;
-        canvasContext = canvas.getContext('2d');
-
-        log.e('temp canvas init')
-        var tempCanvas = document.createElement('canvas');
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = canvas.height;
-
-        canvasContext._tempContext = tempCanvas.getContext('2d');
-      }
-
-      source = {
-        audioBuffer: audioBuffer,
-        audioContext: audioContext,
-        sourceNode: sourceNode,
-        analyser: null,
-        scriptNode: null,
-        canvasContext: canvasContext
-      };
-
-      this._sources.audioBufferStream = source;
-      this._init();
-    }
-
-    if (toString.call(audioBuffer) === '[object AnalyserNode]') {
-      source = this._sources.userMediaStream || {};
-      source.analyser = audioBuffer;
-      this._sources.userMediaStream = source;
-    }
-  };
-
-  start(offset) {
-    log.e("start")
-    var source = this._sources.audioBufferStream;
-    var sourceMedia = this._sources.userMediaStream;
-
-    if (source && source.sourceNode) {
-      source.sourceNode.start(0, offset||0);
-      this._audioEnded = false;
-      this._paused = false;
-      this._startedAt = Date.now();
-    }
-
-    // media stream uses an analyser for audio data
-    if (sourceMedia && sourceMedia.analyser) {
-      source = sourceMedia;
-      var canvas = document.createElement('canvas');
-      this.root_view.width = this._baseCanvas.width;
-      this.root_view.height = this._baseCanvas.height;
-      canvas.width = this._baseCanvas.width;
-      canvas.height = this._baseCanvas.height;
-      var canvasContext = canvas.getContext('2d');
-
-      var tempCanvas = document.createElement('canvas');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-
-      canvasContext._tempContext = tempCanvas.getContext('2d');
-
-      this._startMediaStreamDraw(source.analyser, canvasContext);
-    }
-  };
-
-  stop() {
-    var source = this._sources[Object.keys(this._sources)[0]];
-    if (source && source.sourceNode) {
-      source.sourceNode.stop();
-    }
-    this._audioEnded = true;
-  };
-
-  pause() {
-    this.stop();
-    this._paused = true;
-    this._pausedAt += Date.now() - this._startedAt;
-  };
-
-  resume(offset) {
-     log.e("resume")
-    log.e(offset)
-
-    var source = this._sources;
-    //var source = this._sources[Object.keys(this._sources)[0]];
-     log.e(source)
-    this._paused = false;
-    if (this._pausedAt) {
-      
-      this.connectSource(source.audioBuffer, source.audioContext);
-      this.start(offset || (this._pausedAt / 1000));
-    }
-  };
-
-  clear(canvasContext) {
-    var source = this._sources[Object.keys(this._sources)[0]];
-
-    this.stop();
-
-    if (toString.call(source.scriptNode) === '[object ScriptProcessorNode]') {
-      source.scriptNode.onaudioprocess = null;
-    }
-
-    canvasContext = canvasContext || source.canvasContext;
-    var canvas = canvasContext.canvas;
-    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
-    canvasContext._tempContext.clearRect(0, 0, canvas.width, canvas.height);
-    this._baseCanvasContext.clearRect(0, 0, canvas.width, canvas.height);
-  };
-
-  _generateDefaultColors(steps) {
-    var frequency = Math.PI / steps;
-    var amplitude = 127;
-    var center = 128;
-    var slice = (Math.PI / 2) * 3.1;
-    var colors = [];
-
-    function toRGBString(v) {
-      return 'rgba(' + [v,v,v,1].toString() + ')';
-    }
-
-    for (var i = 0; i < steps; i++) {
-      var v = (Math.sin((frequency * i) + slice) * amplitude + center) >> 0;
-
-      colors.push(toRGBString(v));
-    }
-
-    return colors;
-  };
-
-  _getColor(index) {
-    var color = this._colors[index>>0];
-
-    if (typeof color === 'undefined') {
-      color = this._colors[0];
-    }
-
-    return color;
-  };
-}*/
-  /*if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-      exports = module.exports = Spectrogram;
-    }
-    exports.Spectrogram = Spectrogram;
-  } else if (typeof define === 'function' && define.amd) {
-    define([], function() {
-      return Spectrogram;
-    });
-  } else {
-    root.Spectrogram = Spectrogram;
-  }*/
-
+class Spectrogram {
+
+	constructor(id = "spectrogram", 
+		useHeatMapColors = true, highlightPeaks = false, darkMode = true,
+		minimumFrequency = 0, maximumFrequency = 22050){
+
+		this.id = id;
+		this.darkMode = darkMode;
+		this.buildView();
+
+		this.DECIBEL_MAX = 255.0;
+		this.canvasCtx = this.canvas.getContext("2d");
+
+		this.drawing = true;
+		this.highlightThresholdPercent = 75;
+		this.highlightPeaks = highlightPeaks;
+		this.useHeatMapColors = useHeatMapColors;
+		this.colors = useHeatMapColors ? this.generateHeatMapColors() : this.generateDefaultColors();
+
+		this.canvasHeightSetup = false;
+
+		this.minimumFrequency = minimumFrequency;
+		this.maximumFrequency = maximumFrequency;
+	}
+
+	buildView() {
+
+		var root_view = $(this.id);
+		
+		this.canvas = document.createElement('canvas');
+		this.canvas.style.position = 'absolute';
+		this.canvas.style.background = this.darkMode ? '#000': '#FFF';
+		this.canvas.width = root_view.clientWidth;
+		this.canvas.style.width = root_view.clientWidth+'px';
+		this.canvas.style.height = root_view.clientHeight+'px';
+
+		root_view.appendChild(this.canvas);
+	}
+
+	draw(analyserNode, sampleRate) {
+
+		window.requestAnimationFrame(this.draw.bind(this, analyserNode, sampleRate))
+
+		const bufferLength = analyserNode.frequencyBinCount;
+		const dataArray = new Uint8Array(bufferLength); // size is half of fftSize 
+		analyserNode.getByteFrequencyData(dataArray);
+
+		if(!this.canvasHeightSetup){
+			this.canvas.height = this.getCanvasHeight(sampleRate, dataArray.length);
+			this.canvasHeightSetup = true;
+		}
+		this.drawWithArray(dataArray, sampleRate, this.colors);		
+	}
+	
+	drawWithArray(array, sampleRate, colors) {
+		if (this.drawing) {
+
+			var canvas = this.canvas;
+			var canvasContext = this.canvas.getContext("2d");
+						
+			var width = canvas.width;
+			var height = this.getCanvasHeight(sampleRate, array.length);
+			var tempCanvas = canvas;
+			var tempCanvasContext = canvasContext;
+
+			tempCanvasContext.drawImage(canvas, 0, 0, width, height);
+
+			//freq i=0->0 Hz  i=512->sample_rate/2 = 44100/2= 22050Hz
+			// piano A0 27.5 - C8 4186Hz
+
+			var minIndex = Math.max(Math.floor( (this.minimumFrequency/(sampleRate/2.0)) *array.length), 0);
+			var maxIndex = Math.min(Math.ceil( (this.maximumFrequency/(sampleRate/2.0)) *array.length), 22050);
+
+			for (var i = minIndex; i <= maxIndex; i++) { // size is half of fftSize 
+				var decibelValue = array[i]; // 0-255
+				var decibelPercentValue = decibelValue/this.DECIBEL_MAX*100.0;
+				var frequency = (i/(array.length-1))*(sampleRate/2.0);
+
+				canvasContext.fillStyle = getColor(decibelPercentValue, colors);
+				canvasContext.fillRect(width - 1, height - i + minIndex, 1, 1);
+
+				if (this.highlightPeaks){
+
+					if(decibelPercentValue > this.highlightThresholdPercent) {
+
+						if(isPeak(i, array)){
+						
+							var alpha = (decibelPercentValue-this.highlightThresholdPercent)/(100-this.highlightThresholdPercent);
+							canvasContext.fillStyle = 'rgba(' + [255,0,0,alpha].toString() + ')';
+							canvasContext.fillRect(width - 1, height - i, 1, 1);
+						}
+					}
+				}
+			}
+			
+			canvasContext.translate(-1, 0);
+			canvasContext.drawImage(tempCanvas, 0, 0, width, height + minIndex, 0, 0, width, height + minIndex);
+			canvasContext.setTransform(1, 0, 0, 1, 0, 0);
+		}
+
+		function isPeak(i, array){
+			if(i == 0 || i == array.length-1)
+				return false;
+			var previousDecibelValue = array[i-1];
+			var decibelValue = array[i];
+			var nextDecibelValue = array[i+1];
+			return decibelValue>previousDecibelValue && decibelValue>nextDecibelValue;
+		}
+
+		function getColor(decibelPercentValue, colors) {
+			var index = parseInt(decibelPercentValue / 100.0 * (colors.length-1));
+			return colors[index];
+		}
+	}
+
+	getCanvasHeight(sampleRate, arrayLength){
+
+		var maxIndex = Math.min(Math.ceil( (this.maximumFrequency/(sampleRate/2.0)) *arrayLength), 22050);
+		var minIndex = Math.max(Math.floor( (this.minimumFrequency/(sampleRate/2.0)) *arrayLength), 0);
+		return maxIndex - minIndex;
+	}
+	
+	generateDefaultColors() {
+
+		var numberOfColors = 50;
+		var frequency = Math.PI / numberOfColors;
+		var amplitude = 127;
+		var center = 128;
+		var slice = (Math.PI / 2) * 3.1;
+		var colors = [];
+
+		for (var i = 0; i < numberOfColors; i++) {
+			var v = (Math.sin((frequency * i) + slice) * amplitude + center) >> 0;
+			v = this.darkMode ? v : 255 - v;
+			colors.push('rgba(' + [v,v,v,1].toString() + ')');
+		}
+		return colors;
+	}
+
+	generateHeatMapColors() {
+
+		function getColors(fromColor = [0,0,0], toColor =[255,255,255], numberOfColors = 100){
+
+			function getColorValue(startValue, endValue, percent){
+				if(startValue === endValue){
+					return startValue;
+				} else if ( startValue > endValue){
+					return startValue - (percent * (startValue - endValue));
+				} else {
+					return startValue + (percent * (endValue - startValue));
+				}
+			}
+
+			var colors = [];
+
+			var startRedValue = fromColor[0];
+			var startGreenValue = fromColor[1];
+			var startBlueValue = fromColor[2];
+
+			var endRedValue = toColor[0];
+			var endGreenValue = toColor[1];
+			var endBlueValue = toColor[2];
+			
+			for (var i= 0; i<numberOfColors; i++) {
+				var percent = i/(numberOfColors-1);
+				var redValue = getColorValue(startRedValue, endRedValue, percent);
+				var greenValue = getColorValue(startGreenValue, endGreenValue, percent);
+				var blueValue = getColorValue(startBlueValue, endBlueValue, percent);
+				colors.push('rgba(' + [redValue, greenValue, blueValue, 1].toString() + ')');
+			}
+			return colors;
+		}
+		
+		const black = [0,0,0];
+		const white = [255, 255, 255];
+		const background = this.darkMode ? black : white;
+		const purple = this.darkMode ? [64,0,64]: [125,0,125];
+		const blue = [0,0,255];
+		const green  = [0,170,0];
+		const orange = [255,170,0];
+		const red = [255,0,0]
+
+		return [].concat(getColors(background, purple, 15), 
+						getColors(purple, blue, 35),
+						getColors(blue, green, 10),
+						getColors(green, orange, 20),
+						getColors(orange, red, 20));
+	}
+
+	resize(newWidth){
+		var root_view = $(this.id);
+		root_view.style.width = newWidth+'px';
+		this.canvasHeightSetup = false;
+		this.buildView();
+	}
+
+	updateColors(useHeatMapColors){
+		this.colors = useHeatMapColors ? this.generateHeatMapColors() : this.generateDefaultColors();
+	}
+
+	updateHighlightPeaks(highlightPeaks){
+		this.highlightPeaks = highlightPeaks;
+	}
+
+	updateMaximumFrequency(maximumFrequency){
+		this.maximumFrequency = maximumFrequency;
+	}
+
+	refreshCanvasHeight(){
+		this.canvasHeightSetup = false;
+	}
+
+	pause(){
+		this.drawing = false;
+	}
+
+	resume(){
+		this.drawing = true;
+	}
+}

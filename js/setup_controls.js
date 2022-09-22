@@ -6,30 +6,29 @@ function setup_controls(){
 		$("kofi_button").onclick = function() { kofi(); };
 		$("info_button").onclick = function() { info(); };
 
-		$("start").onclick = function() { 
-			$("stop").disabled = false;
-			audio_controller.start();
-		};
-		$("stop").onclick = function() { audio_controller.stop(); };
+		$("start").onclick = function() { audio_controller.start(); };
+		$("resume").onclick = function() { audio_controller.resume(); };
+		$("pause").onclick = function() { audio_controller.pause(); };
 	}
 
-	//setupVolumeSlider();
-	function setupVolumeSlider() {
-		var slider = $("volumeRange");
-		slider.value = model.master_volume_percent*10;
-		var sliderText = $("volume");
-		sliderText.innerHTML = "Volume: " + Number(model.master_volume_percent).toFixed() + "%";
+	setupMaxFrequencySlider();
+	function setupMaxFrequencySlider() {
+		const base_id = "maxFrequency";
+		var slider = $(base_id+"Range");
+		slider.value = storage.get_max_frequency();
+		var sliderText = $(base_id);
+		sliderText.innerHTML = "Max Freq: " + Number(slider.value).toFixed() + "Hz";
 		slider.oninput = function() {
-			model.master_volume_percent = Math.max(0.00001, this.value / 10);
-			storage.set_volume(model.master_volume_percent);
-			sliderText.innerHTML = "Volume: " + Number(model.master_volume_percent).toFixed() + "%";
-			audio_controller.updateVolume(model.master_volume_percent);
+			var value = Number(this.value);
+			storage.set_max_frequency(value);
+			sliderText.innerHTML = "Max Freq: " + value.toFixed() + "Hz";
+			audio_controller.updateMaxFrequency(value);
 		}
 	}
 
-	//setupJustIntonationSwitch();
-	function setupJustIntonationSwitch() {
-		const base_id = "just_intonate" 
+	setupIsColoredSwitch();
+	function setupIsColoredSwitch() {
+		const base_id = "is_colored" 
 		$(base_id).addEventListener("click", function(e){
 			$(base_id+"_checkbox").click();
 		});
@@ -42,48 +41,28 @@ function setup_controls(){
 		$(base_id+"_checkbox").addEventListener("change", function(e){
 			var value = this.checked;
 			log.i("on "+base_id+" change: " + value);
-			model.is_just_intonation = value;
-			storage.set_is_just_intonation(value);
-			audio_controller.stop();
-			pianoView.clear();
-			updateUIFrequencyTable();
+			storage.set_is_colored(value);
+			spectrogram.updateColors(value);
+			spectrogram.updateHighlightPeaks(!value);			
 		});
-		$(base_id+"_checkbox").checked = model.is_just_intonation;
+		$(base_id+"_checkbox").checked = storage.is_colored();
 	}
 
-	//setupSelectControls();
+	setupSelectControls();
 	function setupSelectControls(){
-		setupRootNoteSelect();
-		function setupRootNoteSelect() {
-			const id = "note_type_select";
+		setupFFTSizeSelect();
+		function setupFFTSizeSelect() {
+			const id = "fft_size_select";
 			var select = $(id);
-			var i;
-			let noteTypes = musicKit.Note.ALL_NOTE_NAME_TYPES;
-			var midi_value = 60;
-			for (i = 0; i < noteTypes.length; i++) {
-				let noteType = noteTypes[i];
-				let value = noteType.type;
-				var option = document.createElement('option');
-				if(midi_value == model.selected_root_note) {
-					option.setAttribute('selected','selected');
-				}
-				option.setAttribute('value', midi_value);
-				midi_value++;
-				option.innerHTML = value;
-				select.appendChild(option);
-			}
-
+		
 			$(id).addEventListener("change", function(e){
 				var value = parseInt(this.value);
 				log.i("on "+id+": " + value);
 				model.note_type = value;
-				storage.set_root_note(value);
-				audio_controller.stop();
-				pianoView.clear();
-				buildMidiValueToJustIntonationFrequencyMap();
-				updateUIFrequencyTable();
+				storage.set_fft_size(value);
+				audio_controller.updateFFTSize(value);
 			});
-			$(id).value = model.note_type;
+			$(id).value = storage.get_fft_size();
 		}
 	}
 }

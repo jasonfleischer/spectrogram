@@ -143,18 +143,22 @@ label {
     vertical-align: text-bottom
 }
 
+#start, #resume, #pause {
+	width: 336px;
+	display: none;
+}
+
+#spectrogram, #oscilloscope, #frequency_view {
+	border: 2px #49494955 solid;
+}
+
 #oscilloscope , #frequency_view{
 	width: 336px;
-	height: 166px;
+	height: 86px;
 }
 
-#spectrogram2{
-	width: 336px;
-	height: 512px;
-}
-
-#spectrogram, #spectrogram3{
-	width: 336px;
+#spectrogram {
+	width: 1000px;
 	height: 350px;
 }
 

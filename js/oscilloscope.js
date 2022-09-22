@@ -7,7 +7,6 @@ class Oscilloscope {
 	buildView(id = "oscilloscope") {
 
 		var root_view = $(id);
-		root_view.style.border = '2px #494949 solid'
 
 		this.canvas = document.createElement('canvas');
 		this.canvas.style.position = 'absolute';

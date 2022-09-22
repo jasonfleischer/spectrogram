@@ -1,24 +1,29 @@
+
+const audio_controller_state = Object.freeze({
+	STOPPED: 0,
+	RESUMED: 1,
+	PAUSED: 2
+});
+
 audio_controller = {
-	setup: false,
+	state: audio_controller_state.STOPPED,
 	ctx: {},
 	analyzerNode: {},
-	compressorNode: {},
-	masterGainNode: {},
-	audioElement: {}
+	audioElement: {},
+	use_microphone: true
 };
 
-var use_microphone = true;
+audio_controller.start = function(fftSize = storage.get_fft_size(), audioElement = undefined) {
 
-audio_controller.start = function() {
-
-	if(!audio_controller.setup){
+	if(audio_controller.state == audio_controller_state.STOPPED){
 		audio_controller.ctx = new AudioContext();
 		audio_controller.analyzerNode = audio_controller.ctx.createAnalyser();
 	   	audio_controller.analyzerNode.smoothingTimeConstant = 0;
-	   	audio_controller.analyzerNode.fftSize = 1024;
-	   	//32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, and 32768
+	   	audio_controller.analyzerNode.fftSize = fftSize;
 
-		if (use_microphone){
+	   	audio_controller.use_microphone = (audioElement == undefined);
+
+		if (audio_controller.use_microphone){
 
 			navigator.mediaDevices.getUserMedia({ video: false, audio: true })
 			  	.then( (mediaStreamObj) => {
@@ -29,53 +34,85 @@ audio_controller.start = function() {
 				});
 
 		} else {
-			
-			audio_controller.audioElement = document.createElement("AUDIO");
+			audio_controller.audioElement = audioElement;
+			/*audio_controller.audioElement = document.createElement("AUDIO");
 			audio_controller.audioElement.src = "audio/float.mp3";
 			audio_controller.audioElement.autoplay = true;
 			audio_controller.audioElement.loop = true;
+			*/
 			audio_controller.audioElement.oncanplay = function () { 
 				var mediaStreamObj = audio_controller.audioElement.captureStream();
 				onStreamAquired(mediaStreamObj);
 			}
 		}
-	 	audio_controller.setup = true;
 	} else {
-		oscilloscope.resume();
-		frequency_view.resume();
-		spectrogram2.resume();
-		spectrogram3.resume();
-		//spectro.resume();
+		log.e("already started");
 	}
 
 	function onStreamAquired(mediaStreamObj) {
-
-		var source = audio_controller.ctx.createMediaStreamSource(mediaStreamObj);
-		source.connect(audio_controller.analyzerNode);
-		//spectro.connectSource(audio_controller.analyzerNode, audio_controller.ctx);
+		var sourceNode = audio_controller.ctx.createMediaStreamSource(mediaStreamObj);
+		sourceNode.connect(audio_controller.analyzerNode);
 		startVisualization();
+		audio_controller.state = audio_controller_state.RESUMED;
+		updateUI_buttons(audio_controller.state);
 	}
 
 	function startVisualization() {
 
 		oscilloscope.draw(audio_controller.analyzerNode);
 		frequency_view.draw(audio_controller.analyzerNode);
-		//spectro.start();
-		spectrogram2.draw(audio_controller.analyzerNode, audio_controller.ctx.sampleRate);
-		spectrogram3.draw(audio_controller.analyzerNode, audio_controller.ctx.sampleRate);
-		
+		spectrogram.draw(audio_controller.analyzerNode, audio_controller.ctx.sampleRate);
 	}
 }
 
-audio_controller.stop = function() {
+audio_controller.resume = function() {
+	if(audio_controller.state == audio_controller_state.PAUSED){
+		oscilloscope.resume();
+		frequency_view.resume();
+		spectrogram.resume();
+		audio_controller.state = audio_controller_state.RESUMED;
+		updateUI_buttons(audio_controller.state);
+	} else {
+		log.e("not paused");
+	}
+}
 
-	oscilloscope.pause();
-	frequency_view.pause();
-	spectrogram2.pause();
-	spectrogram3.pause();
-	//spectro.pause();
+audio_controller.pause = function() {
 
-	if(!use_microphone){
-		audio_controller.audioElement.pause();
+	if(audio_controller.state == audio_controller_state.RESUMED){
+		oscilloscope.pause();
+		frequency_view.pause();
+		spectrogram.pause();
+		if(!audio_controller.use_microphone){
+			audio_controller.audioElement.pause();
+		}
+		audio_controller.state = audio_controller_state.PAUSED;
+		updateUI_buttons(audio_controller.state);
+	} else {
+		log.e("not resumed");
+	}
+}
+
+audio_controller.updateFFTSize = function(fftSize) {
+
+	var savedState = audio_controller.state;
+	audio_controller.pause();
+	audio_controller.analyzerNode.fftSize = fftSize;
+	spectrogram.refreshCanvasHeight();
+
+	if(savedState == audio_controller_state.RESUMED){
+		audio_controller.resume();
+	}
+}
+
+audio_controller.updateMaxFrequency = function(maximumFrequency) {
+	
+	var savedState = audio_controller.state;
+	audio_controller.pause();
+	spectrogram.updateMaximumFrequency(maximumFrequency);
+	spectrogram.refreshCanvasHeight();
+		
+	if(savedState == audio_controller_state.RESUMED){
+		audio_controller.resume();
 	}
 }

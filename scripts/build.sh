@@ -11,7 +11,7 @@
 
 uglifycss css/alert.css css/button.css css/header.css css/main.css css/root.css css/switch.css css/select.css css/slider.css > css/bundle.css
 
-uglifyjs js/prototypes.js js/model.js js/storage.js js/spectrogram.js js/spectrogram2.js js/frequency_view.js js/audio_controller.js js/alert.js js/information.js  js/setup_controls.js js/main.js js/keyboard_shortcuts.js js/window_resize.js js/oscilloscope.js js/install.js service_worker.js -o js/bundle.js
+uglifyjs js/prototypes.js js/model.js js/storage.js js/spectrogram.js js/frequency_view.js js/audio_controller.js js/alert.js js/information.js  js/setup_controls.js js/main.js js/keyboard_shortcuts.js js/window_resize.js js/oscilloscope.js js/install.js service_worker.js -o js/bundle.js
 browserify js/bundle.js -o js/bundle.js
 uglifyjs js/bundle.js -o js/bundle.js
 

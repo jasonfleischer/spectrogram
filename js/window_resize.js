@@ -19,4 +19,11 @@ function window_resized_end(){
 	let contentWidth = document.body.clientWidth;
 	
 	//todo
+	
+	if(audio_controller.state == audio_controller_state.RESUMED) audio_controller.pause();
+	
+	let paddingLeftRight = 30;
+	spectrogram.resize(Math.min(contentWidth-paddingLeftRight, 1000));
+
+	if(audio_controller.state == audio_controller_state.PAUSED) audio_controller.resume();		
 }
