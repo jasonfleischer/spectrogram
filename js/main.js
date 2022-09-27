@@ -7,7 +7,6 @@ var spectrogram = {};
 init = function() {
 
 	alert.init();
-
 	oscilloscope = new Oscilloscope();
 	frequency_view = new FrequencyView();
 	spectrogram = new Spectrogram("spectrogram", 
