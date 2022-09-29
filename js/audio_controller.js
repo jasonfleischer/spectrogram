@@ -1,4 +1,3 @@
-
 const audio_controller_state = Object.freeze({
 	STOPPED: 0,
 	RESUMED: 1,
