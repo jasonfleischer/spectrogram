@@ -1,12 +1,19 @@
 const log = require("@jasonfleischer/log");
+const Spectrogram = require("@jasonfleischer/spectrogram");
 
+var audio_controller = {};
 var oscilloscope = {};
 var frequency_view = {};
 var spectrogram = {};
+var 
 
 init = function() {
 
 	alert.init();
+
+
+	audio_controller = new AudioController(onStateChange = updateUI_buttons, startVisualization = startVisualization, fftSize = storage.get_fft_size());
+
 	oscilloscope = new Oscilloscope();
 	frequency_view = new FrequencyView();
 	spectrogram = new Spectrogram("spectrogram", 
@@ -24,6 +31,24 @@ init = function() {
 	if (isSafariMobile && !isFromHomeScreen()){
 		install.showAlert();
 	}
+}
+
+onAudioStateChanged = function(audio_state) {
+	switch(audio_state){
+		case audio_controller_state.STOPPED:
+			break;
+		case audio_controller_state.RESUMED:
+			oscilloscope.resume();
+			frequency_view.resume();
+			spectrogram.resume();
+			break;
+		case audio_controller_state.PAUSED:
+			oscilloscope.pause();
+			frequency_view.pause();
+			spectrogram.pause();
+			break;
+	}
+	updateUI_buttons(audio_state);
 }
 
 updateUI_buttons = function(audio_state) {
@@ -53,4 +78,11 @@ updateUI_buttons = function(audio_state) {
 			$("pause").style.display = 'none';
 			break;
 	}
+}
+
+function startVisualization(audio_controller) {
+	var analyzerNode = audio_controller.analyzerNode;
+	oscilloscope.draw(analyzerNode);
+	frequency_view.draw(analyzerNode);
+	spectrogram.draw(analyzerNode, audio_controller.ctx.sampleRate);
 }

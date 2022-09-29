@@ -21,6 +21,7 @@
   "homepage": "https://jasonfleischer.github.io/spectrogram/",
   "dependencies": {
     "@jasonfleischer/log": "^1.0.0",
-    "@jasonfleischer/piano": "^1.0.0"
+    "@jasonfleischer/piano": "^1.0.0",
+    "@jasonfleischer/spectrogram": "^1.0.1"
   }
 }

@@ -5,114 +5,73 @@ const audio_controller_state = Object.freeze({
 	PAUSED: 2
 });
 
-audio_controller = {
-	state: audio_controller_state.STOPPED,
-	ctx: {},
-	analyzerNode: {},
-	audioElement: {},
-	use_microphone: true
-};
+class AudioController {
 
-audio_controller.start = function(fftSize = storage.get_fft_size(), audioElement = undefined) {
+	constructor(onStateChange, startVisualization, fftSize = 1024, audioElement = undefined){
+		this.fftSize = fftSize;
+		this.audioElement = audioElement;
+		this.use_microphone = (audioElement == undefined);
+		this.onStateChange = onStateChange;
+		this.startVisualization = startVisualization;
+		this.state = audio_controller_state.STOPPED;
+		this.ctx = {};
+		this.analyzerNode = {};
+	}
 
-	if(audio_controller.state == audio_controller_state.STOPPED){
-		audio_controller.ctx = new AudioContext();
-		audio_controller.analyzerNode = audio_controller.ctx.createAnalyser();
-	   	audio_controller.analyzerNode.smoothingTimeConstant = 0;
-	   	audio_controller.analyzerNode.fftSize = fftSize;
+	start(){
+		if(this.state == audio_controller_state.STOPPED){
+			this.ctx = new AudioContext();
+			this.analyzerNode = this.ctx.createAnalyser();
+		   	this.analyzerNode.smoothingTimeConstant = 0;
+		   	this.analyzerNode.fftSize = this.fftSize;
 
-	   	audio_controller.use_microphone = (audioElement == undefined);
+			if (this.use_microphone){
+				navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+				  	.then( (mediaStreamObj) => {
+						onStreamAquired(mediaStreamObj, this);
+					})
+					.catch( (err) => {
+					 	log.e("getUserMedia: " + err);
+					});
 
-		if (audio_controller.use_microphone){
-
-			navigator.mediaDevices.getUserMedia({ video: false, audio: true })
-			  	.then( (mediaStreamObj) => {
-					onStreamAquired(mediaStreamObj);
-				})
-				.catch( (err) => {
-				 	log.e("getUserMedia: " + err);
-				});
-
-		} else {
-			audio_controller.audioElement = audioElement;
-			/*audio_controller.audioElement = document.createElement("AUDIO");
-			audio_controller.audioElement.src = "audio/float.mp3";
-			audio_controller.audioElement.autoplay = true;
-			audio_controller.audioElement.loop = true;
-			*/
-			audio_controller.audioElement.oncanplay = function () { 
-				var mediaStreamObj = audio_controller.audioElement.captureStream();
-				onStreamAquired(mediaStreamObj);
+			} else {
+				this.audioElement.oncanplay = function () { 
+					var mediaStreamObj = this.audioElement.captureStream();
+					onStreamAquired(mediaStreamObj, this);
+				}
 			}
+		} else {
+			log.e("already started");
 		}
-	} else {
-		log.e("already started");
-	}
 
-	function onStreamAquired(mediaStreamObj) {
-		var sourceNode = audio_controller.ctx.createMediaStreamSource(mediaStreamObj);
-		sourceNode.connect(audio_controller.analyzerNode);
-		startVisualization();
-		audio_controller.state = audio_controller_state.RESUMED;
-		updateUI_buttons(audio_controller.state);
-	}
-
-	function startVisualization() {
-
-		oscilloscope.draw(audio_controller.analyzerNode);
-		frequency_view.draw(audio_controller.analyzerNode);
-		spectrogram.draw(audio_controller.analyzerNode, audio_controller.ctx.sampleRate);
-	}
-}
-
-audio_controller.resume = function() {
-	if(audio_controller.state == audio_controller_state.PAUSED){
-		oscilloscope.resume();
-		frequency_view.resume();
-		spectrogram.resume();
-		audio_controller.state = audio_controller_state.RESUMED;
-		updateUI_buttons(audio_controller.state);
-	} else {
-		log.e("not paused");
-	}
-}
-
-audio_controller.pause = function() {
-
-	if(audio_controller.state == audio_controller_state.RESUMED){
-		oscilloscope.pause();
-		frequency_view.pause();
-		spectrogram.pause();
-		if(!audio_controller.use_microphone){
-			audio_controller.audioElement.pause();
+		function onStreamAquired(mediaStreamObj, thiz) {
+			var sourceNode = thiz.ctx.createMediaStreamSource(mediaStreamObj);
+			sourceNode.connect(thiz.analyzerNode);
+			thiz.startVisualization(thiz);
+			thiz.state = audio_controller_state.RESUMED;
+			thiz.onStateChange(thiz.state);
 		}
-		audio_controller.state = audio_controller_state.PAUSED;
-		updateUI_buttons(audio_controller.state);
-	} else {
-		log.e("not resumed");
 	}
-}
 
-audio_controller.updateFFTSize = function(fftSize) {
-
-	var savedState = audio_controller.state;
-	audio_controller.pause();
-	audio_controller.analyzerNode.fftSize = fftSize;
-	spectrogram.refreshCanvasHeight();
-
-	if(savedState == audio_controller_state.RESUMED){
-		audio_controller.resume();
+	resume() {
+		if(this.state == audio_controller_state.PAUSED){
+			this.state = audio_controller_state.RESUMED;
+			this.onStateChange(this.state);
+		} else {
+			log.e("not paused");
+		}
 	}
-}
 
-audio_controller.updateMaxFrequency = function(maximumFrequency) {
-	
-	var savedState = audio_controller.state;
-	audio_controller.pause();
-	spectrogram.updateMaximumFrequency(maximumFrequency);
-	spectrogram.refreshCanvasHeight();
-		
-	if(savedState == audio_controller_state.RESUMED){
-		audio_controller.resume();
+	pause() {
+
+		if(this.state == audio_controller_state.RESUMED){
+			if(!this.use_microphone){
+				this.audioElement.pause();
+			}
+			this.state = audio_controller_state.PAUSED;
+			this.onStateChange(this.state);
+		} else {
+			log.e("not resumed");
+		}
 	}
 }

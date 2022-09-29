@@ -22,7 +22,19 @@ function setup_controls(){
 			var value = Number(this.value);
 			storage.set_max_frequency(value);
 			sliderText.innerHTML = "Max Freq: " + value.toFixed() + "Hz";
-			audio_controller.updateMaxFrequency(value);
+			updateMaxFrequency(value);
+		}
+
+		function updateMaxFrequency(maximumFrequency) {
+			
+			var savedState = audio_controller.state;
+			audio_controller.pause();
+			spectrogram.updateMaximumFrequency(maximumFrequency);
+			spectrogram.refreshCanvasHeight();
+				
+			if(savedState == audio_controller_state.RESUMED){
+				audio_controller.resume();
+			}
 		}
 	}
 
@@ -60,9 +72,22 @@ function setup_controls(){
 				log.i("on "+id+": " + value);
 				model.note_type = value;
 				storage.set_fft_size(value);
-				audio_controller.updateFFTSize(value);
+				updateFFTSize(value);
 			});
 			$(id).value = storage.get_fft_size();
+		}
+
+		function updateFFTSize(fftSize) {
+
+			var savedState = audio_controller.state;
+			audio_controller.pause();
+			audio_controller.fftSize = fftSize;
+			audio_controller.analyzerNode.fftSize = fftSize;
+			spectrogram.refreshCanvasHeight();
+
+			if(savedState == audio_controller_state.RESUMED){
+				audio_controller.resume();
+			}
 		}
 	}
 }
