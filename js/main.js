@@ -5,7 +5,6 @@ var audio_controller = {};
 var oscilloscope = {};
 var frequency_view = {};
 var spectrogram = {};
-var 
 
 init = function() {
 
