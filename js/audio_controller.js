@@ -34,10 +34,11 @@ class AudioController {
 					});
 
 			} else {
-				this.audioElement.src = this.audioElement.src; // to trigger oncanplay	
-				this.audioElement.oncanplay = function () { 
-					var mediaStreamObj = this.audioElement.captureStream();
-					onStreamAquired(mediaStreamObj, this);
+				this.audioElement.src = this.audioElement.src; // to trigger oncanplay
+				var thiz = this;
+				this.audioElement.oncanplay = function () {
+					var mediaStreamObj = this.captureStream();
+					onStreamAquired(mediaStreamObj, thiz);
 				}
 			}
 		} else {
