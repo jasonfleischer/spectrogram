@@ -11,7 +11,7 @@ init = function() {
 	alert.init();
 
 
-	audio_controller = new AudioController(onStateChange = updateUI_buttons, startVisualization = startVisualization, fftSize = storage.get_fft_size());
+	audio_controller = new AudioController(onStateChange = onAudioStateChanged, startVisualization = startVisualization, fftSize = storage.get_fft_size());
 
 	oscilloscope = new Oscilloscope();
 	frequency_view = new FrequencyView();
