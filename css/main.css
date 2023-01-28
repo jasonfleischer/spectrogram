@@ -162,3 +162,7 @@ label {
 	height: 450px;
 }
 
+#bpm_row, #metronome_volume_row, #metronome_beat_division_row {
+	display: none;
+}
+

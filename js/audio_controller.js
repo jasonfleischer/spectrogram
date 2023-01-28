@@ -6,7 +6,7 @@ const audio_controller_state = Object.freeze({
 
 class AudioController {
 
-	constructor(onStateChange, startVisualization, hasMetronome = false, bpm = 120,fftSize = 1024, audioElement = undefined){
+	constructor(onStateChange, startVisualization, hasMetronome = false, bpm = 120, metronomeVolume = 1.0, metronomeBeatDivision = 4, fftSize = 1024, audioElement = undefined){
 		this.fftSize = fftSize;
 		this.audioElement = audioElement;
 		this.use_microphone = (audioElement == undefined);
@@ -16,7 +16,7 @@ class AudioController {
 		this.state = audio_controller_state.STOPPED;
 		this.ctx = {};
 		this.analyzerNode = {};
-		this.audio_controller_metronome = new AudioControllerMetronome(bpm);
+		this.audio_controller_metronome = new AudioControllerMetronome(bpm, metronomeVolume, metronomeBeatDivision, fftSize);
 	}
 
 	start(){
@@ -103,6 +103,22 @@ class AudioController {
 
 	updateBPM(bpm) {
 		this.audio_controller_metronome.updateBPM(bpm);
+		this.audio_controller_metronome.pause();
+		if(this.state == audio_controller_state.RESUMED){
+			this.audio_controller_metronome.resume();
+		}
+	}
+
+	updateMetronomeVolume(volume) {
+		this.audio_controller_metronome.updateVolume(volume);
+		this.audio_controller_metronome.pause();
+		if(this.state == audio_controller_state.RESUMED){
+			this.audio_controller_metronome.resume();
+		}
+	}
+
+	updateMetronomeBeatDivision(value) {
+		this.audio_controller_metronome.updateBeatDivision(value);
 		this.audio_controller_metronome.pause();
 		if(this.state == audio_controller_state.RESUMED){
 			this.audio_controller_metronome.resume();

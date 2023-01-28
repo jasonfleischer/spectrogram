@@ -16,10 +16,11 @@ function setup_controls(){
 	function setupSliderControls(){
 		setupMaxFrequencySlider();
 		setupBPMSlider();
+		setupMetronomeVolumeSlider();
 
 		function setupMaxFrequencySlider() {
-			const base_id = "maxFrequency";
-			var slider = $(base_id+"Range");
+			const base_id = "max_frequency";
+			var slider = $(base_id+"_range");
 			slider.value = storage.get_max_frequency();
 			var sliderText = $(base_id);
 			sliderText.innerHTML = "Max Freq: " + Number(slider.value).toFixed() + "Hz";
@@ -44,7 +45,7 @@ function setup_controls(){
 		}
 		function setupBPMSlider() {
 			const base_id = "bpm";
-			var slider = $(base_id+"Range");
+			var slider = $(base_id+"_range");
 			slider.value = storage.get_bpm();
 			var sliderText = $(base_id);
 			sliderText.innerHTML = "BPM: " + Number(slider.value).toFixed();
@@ -58,6 +59,25 @@ function setup_controls(){
 				storage.set_bpm(value);
 				sliderText.innerHTML = "BPM: " + value.toFixed();
 				audio_controller.updateBPM(value);
+			});
+		}
+
+		function setupMetronomeVolumeSlider() {
+			const base_id = "metronome_volume";
+			var slider = $(base_id+"_range");
+			slider.value = storage.get_metronome_volume();
+			var sliderText = $(base_id);
+			sliderText.innerHTML = "Volume: " + Number(slider.value*100).toFixed() + "%";
+			slider.oninput = function() {
+				var value = Number(this.value);
+				storage.set_metronome_volume(value);
+				sliderText.innerHTML = "Volume: " + (value*100).toFixed() + "%";
+			}
+			slider.addEventListener("mouseup", function(){
+				var value = Number(this.value);
+				storage.set_metronome_volume(value);
+				sliderText.innerHTML = "Volume: " + (value*100).toFixed() + "%";
+				audio_controller.updateMetronomeVolume(value);
 			});
 		}
 	}
@@ -104,17 +124,25 @@ function setup_controls(){
 				log.i("on "+base_id+" change: " + value);
 				storage.set_has_metronome(value);
 				audio_controller.updateHasMetronome(value);	
-				$("bpmRow").style.display = value ? "table-row": "none";		
+				hideShowMetronomeControls(value)
 			});
 			var has_metronome = storage.has_metronome();
 			$(base_id+"_checkbox").checked = has_metronome;
-			$("bpmRow").style.display = has_metronome ? "table-row": "none";
+			hideShowMetronomeControls(has_metronome);
+			function hideShowMetronomeControls(has_metronome) {
+				var value = has_metronome ? "table-row": "none";
+				$("bpm_row").style.display = value;
+				$("metronome_volume_row").style.display = value;
+				$("metronome_beat_division_row").style.display = value;
+			}
 		}
 	}
 
 	setupSelectControls();
 	function setupSelectControls(){
 		setupFFTSizeSelect();
+		setupTimeSignatureSelect();
+
 		function setupFFTSizeSelect() {
 			const id = "fft_size_select";
 			var select = $(id);
@@ -122,24 +150,36 @@ function setup_controls(){
 			$(id).addEventListener("change", function(e){
 				var value = parseInt(this.value);
 				log.i("on "+id+": " + value);
-				model.note_type = value;
 				storage.set_fft_size(value);
 				updateFFTSize(value);
 			});
 			$(id).value = storage.get_fft_size();
+
+			function updateFFTSize(fftSize) {
+
+				var savedState = audio_controller.state;
+				audio_controller.pause();
+				audio_controller.fftSize = fftSize;
+				audio_controller.analyzerNode.fftSize = fftSize;
+				spectrogram.refreshCanvasHeight();
+
+				if(savedState == audio_controller_state.RESUMED){
+					audio_controller.resume();
+				}
+			}
 		}
 
-		function updateFFTSize(fftSize) {
-
-			var savedState = audio_controller.state;
-			audio_controller.pause();
-			audio_controller.fftSize = fftSize;
-			audio_controller.analyzerNode.fftSize = fftSize;
-			spectrogram.refreshCanvasHeight();
-
-			if(savedState == audio_controller_state.RESUMED){
-				audio_controller.resume();
-			}
+		function setupTimeSignatureSelect() {
+			const id = "metronome_beat_division_select";
+			var select = $(id);
+		
+			$(id).addEventListener("change", function(e){
+				var value = parseInt(this.value);
+				log.i("on "+id+": " + value);
+				storage.set_metronome_beat_division(value);
+				audio_controller.updateMetronomeBeatDivision(value);
+			});
+			$(id).value = storage.get_metronome_beat_division();
 		}
 	}
 }

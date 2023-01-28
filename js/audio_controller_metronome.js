@@ -9,7 +9,7 @@ var timer_id = {}
 
 class AudioControllerMetronome {
 
-	constructor(bpm = 120, fftSize = 1024){
+	constructor(bpm = 120, volume = 1.0, beatDivision = 4, fftSize = 1024){
 		
 		this.fftSize = fftSize;
 		this.state = audio_controller_metronome_state.STOPPED;
@@ -17,8 +17,9 @@ class AudioControllerMetronome {
 		this.oscillator = {};
 		this.gain_node = {};
 		this.bpm = bpm;
-		this.beat_division = 4;
+		this.beat_division = beatDivision;
 		this.start_time = 0;
+		this.volume = volume;
 	}
 
 	setup(ctx){
@@ -65,7 +66,8 @@ class AudioControllerMetronome {
 			ctx: this.ctx,
 			step: this.step,
 			timer_id: this.timer_id,
-			state: this.state
+			state: this.state,
+			volume: this.volume,
 
 		}), interval);
 	}
@@ -91,7 +93,8 @@ class AudioControllerMetronome {
 			ctx: this.ctx,
 			step: this.step,
 			timer_id: this.timer_id,
-			state: this.state
+			state: this.state,
+			volume: this.volume,
 
 		}), Math.max(0, this.interval - drift));
 	}
@@ -104,7 +107,8 @@ class AudioControllerMetronome {
 		this.oscillator.frequency.value = (index == 0) ? 2000: 3000;
 		var time = this.ctx.currentTime;
 		var fade_time = 0.1;
-		this.gain_node.gain.setValueAtTime(1.0, time);
+
+		this.gain_node.gain.setValueAtTime(this.volume, time);
 		this.gain_node.gain.exponentialRampToValueAtTime(0.00001, time + fade_time);
 	}
 
@@ -128,4 +132,8 @@ class AudioControllerMetronome {
 	}
 
 	updateBPM(bpm) { this.bpm = bpm; }
+
+	updateVolume(volume) { this.volume = volume; }
+
+	updateBeatDivision(value) { this.beat_division = value; }
 }

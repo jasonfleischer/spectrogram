@@ -10,7 +10,14 @@ init = function() {
 
 	alert.init();
 
-	audio_controller = new AudioController(onStateChange = onAudioStateChanged, startVisualization = startVisualization, hasMetronome = storage.has_metronome(), bpm = storage.get_bpm(), fftSize = storage.get_fft_size());
+	audio_controller = new AudioController(onStateChange = onAudioStateChanged, 
+		startVisualization = startVisualization, 
+		hasMetronome = storage.has_metronome(), 
+		bpm = storage.get_bpm(),
+		metronomeVolume = storage.get_metronome_volume(),
+		metronomeBeatDivision = storage.get_metronome_beat_division(),
+		fftSize = storage.get_fft_size());
+	
 	oscilloscope = new Oscilloscope();
 	frequency_view = new FrequencyView();
 	spectrogram = new Spectrogram("spectrogram", 

@@ -57,9 +57,9 @@
 					<button id="pause" disabled>Pause</button>
 				</tr>
 				<tr>
-					<td><label id="maxFrequency" for="maxFrequencyRange">Max Freq</label></td>
+					<td><label id="max_frequency" for="max_frequency_range">Max Freq</label></td>
 					<td>
-						<input type="range" min="2250" max="22050" value="4200" step="50" class="slider" id="maxFrequencyRange" />
+						<input type="range" min="2250" max="22050" value="4200" step="50" class="slider" id="max_frequency_range" />
 					</td>
 				</tr>
 				<tr id="is_colored" class="checkbox-row">
@@ -109,11 +109,26 @@
 						</div>
 					</td>
 				</tr>
-				<tr id="bpmRow">
-					<td><label id="bpm" for="bpmRange">BPM</label></td>
+				<tr id="bpm_row">
+					<td><label id="bpm" for="bpm_range">BPM</label></td>
 					<td>
-						<input type="range" min="40" max="208" value="120" step="1" class="slider" id="bpmRange" />
+						<input type="range" min="40" max="208" value="120" step="1" class="slider" id="bpm_range" />
 					</td>
+				</tr>
+				<tr id="metronome_volume_row">
+					<td><label id="metronome_volume" for="metronome_volume_range">Volume</label></td>
+					<td>
+						<input type="range" min="0.05" max="1.0" value="0.5" step="0.01" class="slider" id="metronome_volume_range" />
+					</td>
+				</tr>
+				<tr id="metronome_beat_division_row">
+					<td id="metronome_beat_division"><label for="metronome_beat_division_select">Time Signature</label></td>
+					<td><select id="metronome_beat_division_select">
+						<option value="1">None</option>
+						<option value="2">2/4</option>
+						<option value="3">3/4</option>
+						<option value="4" selected="selected">4/4</option>
+					</select></td>
 				</tr>
 			</table>
 		</article>
