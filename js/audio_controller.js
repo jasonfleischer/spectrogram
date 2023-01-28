@@ -94,7 +94,7 @@ class AudioController {
 	updateHasMetronome(hasMetronome) {
 
 		this.hasMetronome = hasMetronome;
-		if(hasMetronome){
+		if(hasMetronome && this.state == audio_controller_state.RESUMED){
 			this.audio_controller_metronome.resume();
 		} else {
 			this.audio_controller_metronome.pause();
