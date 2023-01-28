@@ -1,6 +1,8 @@
 const audio_controller_metronome_state = Object.freeze({
 	STOPPED: 0,
-	RESUMED: 1
+	PAUSED: 1,
+	PLAYING: 2
+	
 });
 
 var timer_id = {}
@@ -19,11 +21,9 @@ class AudioControllerMetronome {
 		this.start_time = 0;
 	}
 
-	start(ctx){
+	setup(ctx){
 		if(this.state == audio_controller_metronome_state.STOPPED){
-
-			this.ctx = ctx;
-
+			this.ctx = ctx
 		   	this.oscillator = this.ctx.createOscillator()
 			this.oscillator.type = "sine"
 			this.oscillator.frequency.value = 2000.0;
@@ -36,12 +36,10 @@ class AudioControllerMetronome {
 			
 			this.oscillator.start()
 
-			this.state = audio_controller_metronome_state.RESUMED;
-
-			this.startTimer();
+			this.state = audio_controller_metronome_state.PAUSED;
 			
 		} else {
-			log.i("already started");
+			log.e("metronome already setup");
 		}
 	}
 
@@ -53,8 +51,6 @@ class AudioControllerMetronome {
 		function BPMtoMilliSeconds(BPM) { return 1000 / (BPM / 60); }
 		var time_division_milli_seconds = BPMtoMilliSeconds(this.bpm);
 		
-		//this.executeAudioTimer(audio_queue_index, this);
-
 		var interval = time_division_milli_seconds;
 		var expected = Date.now() + interval;
 
@@ -74,7 +70,7 @@ class AudioControllerMetronome {
 		}), interval);
 	}
 
-	step() {
+	step() {		
 
 		var drift = Date.now() - this.expected; 
 		if (drift > this.interval) {
@@ -102,6 +98,10 @@ class AudioControllerMetronome {
 
 	executeAudioTimer(index) {
 
+		if(this.state == audio_controller_metronome_state.PAUSED){
+			return;
+		}
+
 		log.e(index)
 
 		this.oscillator.frequency.value = (index == 0) ? 2000: 3000;
@@ -111,13 +111,22 @@ class AudioControllerMetronome {
 		this.gain_node.gain.exponentialRampToValueAtTime(0.00001, time + fade_time);
 	}
 
-	stop() {
+	resume() {
+		if(this.state == audio_controller_metronome_state.PAUSED) {
+			this.state = audio_controller_metronome_state.RESUMED;
+			this.startTimer();
+		} else {
+			log.e("metronome not paused");
+		}
+	}
+
+	pause() {
 
 		if(this.state == audio_controller_metronome_state.RESUMED){
-			this.state = audio_controller_metronome_state.STOPPED;
+			this.state = audio_controller_metronome_state.PAUSED;
 			clearInterval(timer_id);
 		} else {
-			log.i("not resumed");
+			log.e("metronome not resumed");
 		}
 	}
 

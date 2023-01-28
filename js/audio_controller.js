@@ -23,8 +23,12 @@ class AudioController {
 		if(this.state == audio_controller_state.STOPPED){
 			this.ctx = new AudioContext();
 
-			if(this.hasMetronome)
-				this.audio_controller_metronome.start(this.ctx);
+			this.audio_controller_metronome.setup(this.ctx);
+			if(this.hasMetronome) {
+				this.audio_controller_metronome.resume();
+			} else {
+				this.audio_controller_metronome.pause();
+			}
 
 			this.analyzerNode = this.ctx.createAnalyser();
 		   	this.analyzerNode.smoothingTimeConstant = 0;
@@ -52,8 +56,8 @@ class AudioController {
 		}
 
 		function onStreamAquired(mediaStreamObj, thiz) {
-			if(thiz.hasMetronome)
-				thiz.audio_controller_metronome.gain_node.connect(thiz.analyzerNode)
+			
+			thiz.audio_controller_metronome.gain_node.connect(thiz.analyzerNode)
 			var sourceNode = thiz.ctx.createMediaStreamSource(mediaStreamObj);
 			sourceNode.connect(thiz.analyzerNode);
 			thiz.startVisualization(thiz);
@@ -65,7 +69,8 @@ class AudioController {
 	resume() {
 		if(this.state == audio_controller_state.PAUSED){
 			this.state = audio_controller_state.RESUMED;
-			this.audio_controller_metronome.start(this.ctx);
+			if(this.hasMetronome)
+				this.audio_controller_metronome.resume();
 			this.onStateChange(this.state);
 		} else {
 			log.e("not paused");
@@ -78,7 +83,7 @@ class AudioController {
 			if(!this.use_microphone){
 				this.audioElement.pause();
 			}
-			this.audio_controller_metronome.stop();
+			this.audio_controller_metronome.pause();
 			this.state = audio_controller_state.PAUSED;
 			this.onStateChange(this.state);
 		} else {
@@ -87,19 +92,28 @@ class AudioController {
 	}
 
 	updateHasMetronome(hasMetronome) {
+
 		this.hasMetronome = hasMetronome;
-		if(hasMetronome && this.state == audio_controller_state.RESUMED){
-			this.audio_controller_metronome.start(this.ctx);
+		if(hasMetronome){
+			this.audio_controller_metronome.resume();
 		} else {
-			this.audio_controller_metronome.stop();
+			this.audio_controller_metronome.pause();
 		}
+		//var savedState = this.state;
+
+		//this.pause();
+
+		
+		//if(hasMetronome && savedState == audio_controller_state.RESUMED){
+		//	this.resume();
+		//}
 	}
 
 	updateBPM(bpm) {
 		this.audio_controller_metronome.updateBPM(bpm);
-		this.audio_controller_metronome.stop();
+		this.audio_controller_metronome.pause();
 		if(this.state == audio_controller_state.RESUMED){
-			this.audio_controller_metronome.start(this.ctx);
+			this.audio_controller_metronome.resume();
 		}
 	}
 }
