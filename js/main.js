@@ -10,8 +10,7 @@ init = function() {
 
 	alert.init();
 
-
-	audio_controller = new AudioController(onStateChange = onAudioStateChanged, startVisualization = startVisualization, fftSize = storage.get_fft_size());
+	audio_controller = new AudioController(onStateChange = onAudioStateChanged, startVisualization = startVisualization, hasMetronome = storage.has_metronome(), bpm = storage.get_bpm(), fftSize = storage.get_fft_size());
 
 	oscilloscope = new Oscilloscope();
 	frequency_view = new FrequencyView();
@@ -21,6 +20,8 @@ init = function() {
 									darkMode = true,
 									minimumFrequency = 0, 
 									maximumFrequency = storage.get_max_frequency());
+
+	
 	window_resized_end();
 	setup_keyboard_listeners();
 	setup_controls();

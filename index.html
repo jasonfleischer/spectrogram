@@ -95,6 +95,28 @@
 			<br>
 			<div id="oscilloscope"></div>
 		</article>
+
+		<article>
+			<table>
+				<tr id="has_metronome" class="checkbox-row">
+					<td>
+						<label id="has_metronome_label" for="has_metronome_checkbox">Metronome</label>
+					</td>
+					<td>
+						<div id="has_metronome_checkbox_switch" class="switch">
+							<input id="has_metronome_checkbox" type="checkbox"/>
+							<span class="switch_track round" tabindex="0"></span>
+						</div>
+					</td>
+				</tr>
+				<tr id="bpmRow">
+					<td><label id="bpm" for="bpmRange">BPM</label></td>
+					<td>
+						<input type="range" min="40" max="208" value="120" step="1" class="slider" id="bpmRange" />
+					</td>
+				</tr>
+			</table>
+		</article>
 	</aside>
 	<script src="js/bundle.js"></script>
 </body>

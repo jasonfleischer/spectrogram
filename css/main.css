@@ -148,7 +148,7 @@ label {
 	display: none;
 }
 
-#spectrogram, #oscilloscope, #frequency_view {
+#spectrogram, #spectrogram2, #oscilloscope, #frequency_view {
 	border: 2px #49494955 solid;
 }
 
@@ -157,7 +157,7 @@ label {
 	height: 86px;
 }
 
-#spectrogram {
+#spectrogram, #spectrogram2 {
 	width: 1000px;
 	height: 450px;
 }

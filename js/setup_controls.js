@@ -11,53 +11,105 @@ function setup_controls(){
 		$("pause").onclick = function() { audio_controller.pause(); };
 	}
 
-	setupMaxFrequencySlider();
-	function setupMaxFrequencySlider() {
-		const base_id = "maxFrequency";
-		var slider = $(base_id+"Range");
-		slider.value = storage.get_max_frequency();
-		var sliderText = $(base_id);
-		sliderText.innerHTML = "Max Freq: " + Number(slider.value).toFixed() + "Hz";
-		slider.oninput = function() {
-			var value = Number(this.value);
-			storage.set_max_frequency(value);
-			sliderText.innerHTML = "Max Freq: " + value.toFixed() + "Hz";
-			updateMaxFrequency(value);
-		}
+	setupSliderControls();
 
-		function updateMaxFrequency(maximumFrequency) {
-			
-			var savedState = audio_controller.state;
-			audio_controller.pause();
-			spectrogram.updateMaximumFrequency(maximumFrequency);
-			spectrogram.refreshCanvasHeight();
-				
-			if(savedState == audio_controller_state.RESUMED){
-				audio_controller.resume();
+	function setupSliderControls(){
+		setupMaxFrequencySlider();
+		setupBPMSlider();
+
+		function setupMaxFrequencySlider() {
+			const base_id = "maxFrequency";
+			var slider = $(base_id+"Range");
+			slider.value = storage.get_max_frequency();
+			var sliderText = $(base_id);
+			sliderText.innerHTML = "Max Freq: " + Number(slider.value).toFixed() + "Hz";
+			slider.oninput = function() {
+				var value = Number(this.value);
+				storage.set_max_frequency(value);
+				sliderText.innerHTML = "Max Freq: " + value.toFixed() + "Hz";
+				updateMaxFrequency(value);
 			}
+
+			function updateMaxFrequency(maximumFrequency) {
+				
+				var savedState = audio_controller.state;
+				audio_controller.pause();
+				spectrogram.updateMaximumFrequency(maximumFrequency);
+				spectrogram.refreshCanvasHeight();
+					
+				if(savedState == audio_controller_state.RESUMED){
+					audio_controller.resume();
+				}
+			}
+		}
+		function setupBPMSlider() {
+			const base_id = "bpm";
+			var slider = $(base_id+"Range");
+			slider.value = storage.get_bpm();
+			var sliderText = $(base_id);
+			sliderText.innerHTML = "BPM: " + Number(slider.value).toFixed();
+			slider.oninput = function() {
+				var value = Number(this.value);
+				storage.set_bpm(value);
+				sliderText.innerHTML = "BPM: " + value.toFixed();
+			}
+			slider.addEventListener("mouseup", function(){
+				var value = Number(this.value);
+				storage.set_bpm(value);
+				sliderText.innerHTML = "BPM: " + value.toFixed();
+				audio_controller.updateBPM(value);
+			});
 		}
 	}
 
-	setupIsColoredSwitch();
-	function setupIsColoredSwitch() {
-		const base_id = "is_colored" 
-		$(base_id).addEventListener("click", function(e){
-			$(base_id+"_checkbox").click();
-		});
-		$(base_id+"_label").addEventListener("click", function(e){
-			$(base_id+"_checkbox").click();
-		});
-		$(base_id+"_checkbox_switch").addEventListener('keyup', function(e) {
-			if (event.code === 'Space' || event.code === 'Enter') $(base_id+"_checkbox").click();
-		});
-		$(base_id+"_checkbox").addEventListener("change", function(e){
-			var value = this.checked;
-			log.i("on "+base_id+" change: " + value);
-			storage.set_is_colored(value);
-			spectrogram.updateColors(value);
-			spectrogram.updateHighlightPeaks(!value);			
-		});
-		$(base_id+"_checkbox").checked = storage.is_colored();
+	setupSwitchControls();
+	function setupSwitchControls(){
+		
+		setupIsColoredSwitch();
+		setupHasMetronomeSwitch();
+		function setupIsColoredSwitch() {
+			const base_id = "is_colored" 
+			$(base_id).addEventListener("click", function(e){
+				$(base_id+"_checkbox").click();
+			});
+			$(base_id+"_label").addEventListener("click", function(e){
+				$(base_id+"_checkbox").click();
+			});
+			$(base_id+"_checkbox_switch").addEventListener('keyup', function(e) {
+				if (event.code === 'Space' || event.code === 'Enter') $(base_id+"_checkbox").click();
+			});
+			$(base_id+"_checkbox").addEventListener("change", function(e){
+				var value = this.checked;
+				log.i("on "+base_id+" change: " + value);
+				storage.set_is_colored(value);
+				spectrogram.updateColors(value);
+				spectrogram.updateHighlightPeaks(!value);			
+			});
+			$(base_id+"_checkbox").checked = storage.is_colored();
+		}
+
+		function setupHasMetronomeSwitch() {
+			const base_id = "has_metronome" 
+			$(base_id).addEventListener("click", function(e){
+				$(base_id+"_checkbox").click();
+			});
+			$(base_id+"_label").addEventListener("click", function(e){
+				$(base_id+"_checkbox").click();
+			});
+			$(base_id+"_checkbox_switch").addEventListener('keyup', function(e) {
+				if (event.code === 'Space' || event.code === 'Enter') $(base_id+"_checkbox").click();
+			});
+			$(base_id+"_checkbox").addEventListener("change", function(e){
+				var value = this.checked;
+				log.i("on "+base_id+" change: " + value);
+				storage.set_has_metronome(value);
+				audio_controller.updateHasMetronome(value);	
+				$("bpmRow").style.display = value ? "table-row": "none";		
+			});
+			var has_metronome = storage.has_metronome();
+			$(base_id+"_checkbox").checked = has_metronome;
+			$("bpmRow").style.display = has_metronome ? "table-row": "none";
+		}
 	}
 
 	setupSelectControls();
