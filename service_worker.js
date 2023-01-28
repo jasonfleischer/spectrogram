@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v7';
+const CACHE_NAME = 'v8';
 const ROOT_DIRECTORY_NAME = "spectrogram";
 const CACHE = [
         '/'+ROOT_DIRECTORY_NAME+'/index.html',
