@@ -25,7 +25,6 @@ storage.set_is_colored = function(value){
 	localStorage.setItem(storage.SPECTROGRAM_IS_COLORED, value);
 };
 
-
 storage.SPECTROGRAM_HAS_METRONOME = "SPECTROGRAM_HAS_METRONOME";
 storage.has_metronome = function(default_value = false){
 	var value = storage.get(storage.SPECTROGRAM_HAS_METRONOME, default_value);

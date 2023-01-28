@@ -99,14 +99,6 @@ class AudioController {
 		} else {
 			this.audio_controller_metronome.pause();
 		}
-		//var savedState = this.state;
-
-		//this.pause();
-
-		
-		//if(hasMetronome && savedState == audio_controller_state.RESUMED){
-		//	this.resume();
-		//}
 	}
 
 	updateBPM(bpm) {

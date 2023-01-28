@@ -37,7 +37,7 @@ class AudioControllerMetronome {
 			this.oscillator.start()
 
 			this.state = audio_controller_metronome_state.PAUSED;
-			
+
 		} else {
 			log.e("metronome already setup");
 		}
@@ -101,9 +101,6 @@ class AudioControllerMetronome {
 		if(this.state == audio_controller_metronome_state.PAUSED){
 			return;
 		}
-
-		log.e(index)
-
 		this.oscillator.frequency.value = (index == 0) ? 2000: 3000;
 		var time = this.ctx.currentTime;
 		var fade_time = 0.1;
