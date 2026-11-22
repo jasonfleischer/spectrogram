@@ -84,7 +84,7 @@ updateUI_recording = function() {
 
 	// Play Recording / Stop Playback
 	var play = $("play_recording");
-	play.disabled = !c.hasRecording() || recording || c.state == audio_controller_state.STOPPED;
+	play.disabled = !c.hasRecording() || recording || c.isDecoding || c.state == audio_controller_state.STOPPED;
 	play.textContent = playing ? "Stop Playback" : "Play Recording";
 
 	$("download_recording").disabled = !c.hasRecording() || recording;

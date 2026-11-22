@@ -26,9 +26,11 @@ class AudioController {
 		this.recordingMimeType = '';
 		this.recordingDuration = 0; // seconds
 		this.recordingStartTime = 0;
-		this.playbackElement = undefined;
-		this.playbackSource = undefined;
-		this.playbackUrl = undefined;
+		this.playbackBuffer = undefined;   // decoded recording
+		this.playbackSource = undefined;   // current AudioBufferSourceNode
+		this.playbackOffset = 0;           // seconds into the recording
+		this.playbackStartCtxTime = 0;
+		this.isDecoding = false;
 		this.onRecordingChange = function(){};
 		this.audio_controller_metronome = new AudioControllerMetronome(bpm, metronomeVolume, metronomeBeatDivision, fftSize);
 	}
@@ -88,8 +90,8 @@ class AudioController {
 			this.state = audio_controller_state.RESUMED;
 			if(this.hasMetronome)
 				this.audio_controller_metronome.resume();
-			if(this.mode == 'playback' && this.playbackElement){
-				this.playbackElement.play().catch((err) => log.e("playback: " + err));
+			if(this.mode == 'playback' && !this.playbackSource){
+				this.startPlaybackSource(this.playbackOffset);
 			}
 			this.onStateChange(this.state);
 		} else {
@@ -103,8 +105,8 @@ class AudioController {
 			if(!this.use_microphone){
 				this.audioElement.pause();
 			}
-			if(this.mode == 'playback' && this.playbackElement){
-				this.playbackElement.pause();
+			if(this.mode == 'playback'){
+				this.pausePlaybackSource();
 			}
 			this.audio_controller_metronome.pause();
 			this.state = audio_controller_state.PAUSED;
@@ -186,6 +188,7 @@ class AudioController {
 			var type = recorder.mimeType || mimeType || 'audio/webm';
 			if (thiz.recordedChunks.length > 0) {
 				thiz.recordingBlob = new Blob(thiz.recordedChunks, {type: type});
+				thiz.playbackBuffer = undefined;
 				thiz.recordingMimeType = type;
 				thiz.recordingDuration = (Date.now() - thiz.recordingStartTime) / 1000;
 			}
@@ -206,51 +209,101 @@ class AudioController {
 		}
 	}
 
+	// Playback decodes the recording and plays it through an AudioBufferSourceNode.
+	// (A media element source is unreliable on mobile Safari, which left the spectrogram empty.)
 	playRecording() {
-		if (!this.hasRecording() || this.isRecording || this.mode == 'playback' || this.state == audio_controller_state.STOPPED) {
+		if (!this.hasRecording() || this.isRecording || this.isDecoding || this.mode == 'playback' || this.state == audio_controller_state.STOPPED) {
 			log.e("cannot play recording");
 			return;
 		}
 		var thiz = this;
-		this.playbackUrl = URL.createObjectURL(this.recordingBlob);
-		this.playbackElement = new Audio(this.playbackUrl);
-		this.playbackElement.onended = function() { thiz.stopPlayback(); };
-		this.playbackSource = this.ctx.createMediaElementSource(this.playbackElement);
+		// resume inside the user gesture; mobile browsers may have suspended the context
+		if (this.ctx.state != 'running') this.ctx.resume();
 
-		// swap the live microphone for the recording
-		this.sourceNode.disconnect(this.analyzerNode);
-		this.playbackSource.connect(this.analyzerNode);
-		this.playbackSource.connect(this.ctx.destination); // audible
-		this.mode = 'playback';
-
-		if (this.ctx.state == 'suspended') this.ctx.resume();
-		if (this.state == audio_controller_state.PAUSED) {
-			this.resume(); // also starts the element
-		} else {
-			this.playbackElement.play().catch((err) => log.e("playback: " + err));
-		}
+		this.decodeRecording().then(function(buffer) {
+			thiz.playbackBuffer = buffer;
+			thiz.sourceNode.disconnect(thiz.analyzerNode); // swap the microphone for the recording
+			thiz.mode = 'playback';
+			thiz.playbackOffset = 0;
+			if (thiz.state == audio_controller_state.PAUSED) {
+				thiz.resume(); // starts the source
+			} else {
+				thiz.startPlaybackSource(0);
+			}
+			thiz.onRecordingChange();
+		}).catch(function(err) {
+			log.e("decode recording: " + err);
+			thiz.isDecoding = false;
+			thiz.onRecordingChange();
+		});
+		this.isDecoding = true;
 		this.onRecordingChange();
 	}
 
-	// seconds; MediaRecorder output often reports an infinite duration, so fall back to the measured one
+	decodeRecording() {
+		var thiz = this;
+		if (this.playbackBuffer) return Promise.resolve(this.playbackBuffer).then(done);
+		return new Promise(function(resolve, reject) {
+			var reader = new FileReader();
+			reader.onerror = function() { reject(reader.error); };
+			reader.onload = function() {
+				// callback form too, for older Safari that has no promise-based decodeAudioData
+				var p = thiz.ctx.decodeAudioData(reader.result, resolve, reject);
+				if (p && p.catch) p.catch(reject);
+			};
+			reader.readAsArrayBuffer(thiz.recordingBlob);
+		}).then(done);
+		function done(buffer) { thiz.isDecoding = false; return buffer; }
+	}
+
+	startPlaybackSource(offset) {
+		var thiz = this;
+		var source = this.ctx.createBufferSource();
+		source.buffer = this.playbackBuffer;
+		source.connect(this.analyzerNode);
+		source.connect(this.ctx.destination); // audible
+		source.onended = function() {
+			if (thiz.playbackSource === source) thiz.stopPlayback(); // finished on its own
+		};
+		this.playbackSource = source;
+		this.playbackOffset = offset;
+		this.playbackStartCtxTime = this.ctx.currentTime;
+		source.start(0, offset);
+	}
+
+	pausePlaybackSource() {
+		if (!this.playbackSource) return;
+		this.playbackOffset = this.currentPlaybackTime();
+		this.releasePlaybackSource();
+	}
+
+	releasePlaybackSource() {
+		var source = this.playbackSource;
+		this.playbackSource = undefined;
+		if (source) {
+			source.onended = null;
+			try { source.stop(); } catch (e) {}
+			source.disconnect();
+		}
+	}
+
+	currentPlaybackTime() {
+		if (!this.playbackBuffer) return 0;
+		var t = this.playbackSource ? this.playbackOffset + (this.ctx.currentTime - this.playbackStartCtxTime) : this.playbackOffset;
+		return Math.min(t, this.playbackBuffer.duration);
+	}
+
+	// seconds
 	getPlaybackProgress() {
-		if (this.mode != 'playback' || !this.playbackElement) return {current: 0, duration: this.recordingDuration};
-		var d = this.playbackElement.duration;
-		if (!isFinite(d) || d <= 0) d = this.recordingDuration;
-		var c = this.playbackElement.currentTime;
-		return {current: Math.min(c, d), duration: d};
+		if (this.mode != 'playback' || !this.playbackBuffer) return {current: 0, duration: this.recordingDuration};
+		return {current: this.currentPlaybackTime(), duration: this.playbackBuffer.duration};
 	}
 
 	stopPlayback() {
 		if (this.mode != 'playback') return;
-		this.playbackElement.onended = null;
-		this.playbackElement.pause();
-		this.playbackSource.disconnect();
+		this.releasePlaybackSource();
 		this.sourceNode.connect(this.analyzerNode); // back to the microphone
-		URL.revokeObjectURL(this.playbackUrl);
-		this.playbackElement = undefined;
-		this.playbackSource = undefined;
-		this.playbackUrl = undefined;
+		this.playbackOffset = 0;
 		this.mode = 'live';
 		this.onRecordingChange();
 	}

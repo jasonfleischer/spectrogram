@@ -205,7 +205,7 @@ label {
 #playback_progress_bar {
 	height: 100%;
 	width: 0%;
-	background-color: var(--highlight-blue);
+	background-color: var(--highlight-color);
 }
 #playback_progress_time {
 	font-size: 14px;
