@@ -16,10 +16,24 @@ class AudioController {
 		this.state = audio_controller_state.STOPPED;
 		this.ctx = {};
 		this.analyzerNode = {};
+		this.mediaStream = undefined;
+		this.sourceNode = undefined;
+		this.mode = 'live'; // 'live' (microphone) or 'playback' (recording)
+		this.isRecording = false;
+		this.recorder = undefined;
+		this.recordedChunks = [];
+		this.recordingBlob = undefined;
+		this.recordingMimeType = '';
+		this.recordingDuration = 0; // seconds
+		this.recordingStartTime = 0;
+		this.playbackElement = undefined;
+		this.playbackSource = undefined;
+		this.playbackUrl = undefined;
+		this.onRecordingChange = function(){};
 		this.audio_controller_metronome = new AudioControllerMetronome(bpm, metronomeVolume, metronomeBeatDivision, fftSize);
 	}
 
-	start(){
+	start(onStarted){
 		if(this.state == audio_controller_state.STOPPED){
 			this.ctx = new AudioContext();
 
@@ -60,9 +74,12 @@ class AudioController {
 			thiz.audio_controller_metronome.gain_node.connect(thiz.analyzerNode)
 			var sourceNode = thiz.ctx.createMediaStreamSource(mediaStreamObj);
 			sourceNode.connect(thiz.analyzerNode);
+			thiz.mediaStream = mediaStreamObj;
+			thiz.sourceNode = sourceNode;
 			thiz.startVisualization(thiz);
 			thiz.state = audio_controller_state.RESUMED;
 			thiz.onStateChange(thiz.state);
+			if (typeof onStarted === 'function') onStarted();
 		}
 	}
 
@@ -71,6 +88,9 @@ class AudioController {
 			this.state = audio_controller_state.RESUMED;
 			if(this.hasMetronome)
 				this.audio_controller_metronome.resume();
+			if(this.mode == 'playback' && this.playbackElement){
+				this.playbackElement.play().catch((err) => log.e("playback: " + err));
+			}
 			this.onStateChange(this.state);
 		} else {
 			log.e("not paused");
@@ -82,6 +102,9 @@ class AudioController {
 		if(this.state == audio_controller_state.RESUMED){
 			if(!this.use_microphone){
 				this.audioElement.pause();
+			}
+			if(this.mode == 'playback' && this.playbackElement){
+				this.playbackElement.pause();
 			}
 			this.audio_controller_metronome.pause();
 			this.state = audio_controller_state.PAUSED;
@@ -123,5 +146,126 @@ class AudioController {
 		if(this.state == audio_controller_state.RESUMED){
 			this.audio_controller_metronome.resume();
 		}
+	}
+
+	// ---- recording & playback ----
+
+	canRecord() {
+		return this.state != audio_controller_state.STOPPED && this.mode == 'live' &&
+			this.use_microphone && typeof MediaRecorder !== 'undefined' && this.mediaStream != undefined;
+	}
+
+	hasRecording() {
+		return this.recordingBlob != undefined;
+	}
+
+	isPlayingBack() {
+		return this.mode == 'playback';
+	}
+
+	startRecording() {
+		if (this.isRecording || !this.canRecord()) {
+			log.e("cannot start recording");
+			return false;
+		}
+		const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+		const mimeType = types.find((t) => MediaRecorder.isTypeSupported(t));
+		try {
+			this.recorder = mimeType ? new MediaRecorder(this.mediaStream, {mimeType: mimeType}) : new MediaRecorder(this.mediaStream);
+		} catch (err) {
+			log.e("MediaRecorder: " + err);
+			return false;
+		}
+		var thiz = this;
+		var recorder = this.recorder;
+		this.recordedChunks = [];
+		recorder.ondataavailable = function(e) {
+			if (e.data && e.data.size > 0) thiz.recordedChunks.push(e.data);
+		};
+		recorder.onstop = function() {
+			var type = recorder.mimeType || mimeType || 'audio/webm';
+			if (thiz.recordedChunks.length > 0) {
+				thiz.recordingBlob = new Blob(thiz.recordedChunks, {type: type});
+				thiz.recordingMimeType = type;
+				thiz.recordingDuration = (Date.now() - thiz.recordingStartTime) / 1000;
+			}
+			thiz.recordedChunks = [];
+			thiz.isRecording = false;
+			thiz.onRecordingChange();
+		};
+		recorder.start(250);
+		this.recordingStartTime = Date.now();
+		this.isRecording = true;
+		this.onRecordingChange();
+		return true;
+	}
+
+	stopRecording() {
+		if (this.isRecording && this.recorder && this.recorder.state != 'inactive') {
+			this.recorder.stop(); // onstop updates state
+		}
+	}
+
+	playRecording() {
+		if (!this.hasRecording() || this.isRecording || this.mode == 'playback' || this.state == audio_controller_state.STOPPED) {
+			log.e("cannot play recording");
+			return;
+		}
+		var thiz = this;
+		this.playbackUrl = URL.createObjectURL(this.recordingBlob);
+		this.playbackElement = new Audio(this.playbackUrl);
+		this.playbackElement.onended = function() { thiz.stopPlayback(); };
+		this.playbackSource = this.ctx.createMediaElementSource(this.playbackElement);
+
+		// swap the live microphone for the recording
+		this.sourceNode.disconnect(this.analyzerNode);
+		this.playbackSource.connect(this.analyzerNode);
+		this.playbackSource.connect(this.ctx.destination); // audible
+		this.mode = 'playback';
+
+		if (this.ctx.state == 'suspended') this.ctx.resume();
+		if (this.state == audio_controller_state.PAUSED) {
+			this.resume(); // also starts the element
+		} else {
+			this.playbackElement.play().catch((err) => log.e("playback: " + err));
+		}
+		this.onRecordingChange();
+	}
+
+	// seconds; MediaRecorder output often reports an infinite duration, so fall back to the measured one
+	getPlaybackProgress() {
+		if (this.mode != 'playback' || !this.playbackElement) return {current: 0, duration: this.recordingDuration};
+		var d = this.playbackElement.duration;
+		if (!isFinite(d) || d <= 0) d = this.recordingDuration;
+		var c = this.playbackElement.currentTime;
+		return {current: Math.min(c, d), duration: d};
+	}
+
+	stopPlayback() {
+		if (this.mode != 'playback') return;
+		this.playbackElement.onended = null;
+		this.playbackElement.pause();
+		this.playbackSource.disconnect();
+		this.sourceNode.connect(this.analyzerNode); // back to the microphone
+		URL.revokeObjectURL(this.playbackUrl);
+		this.playbackElement = undefined;
+		this.playbackSource = undefined;
+		this.playbackUrl = undefined;
+		this.mode = 'live';
+		this.onRecordingChange();
+	}
+
+	downloadRecording() {
+		if (!this.hasRecording()) return;
+		var type = this.recordingMimeType;
+		var ext = type.indexOf('mp4') > -1 ? 'm4a' : (type.indexOf('ogg') > -1 ? 'ogg' : 'webm');
+		var url = URL.createObjectURL(this.recordingBlob);
+		var a = document.createElement('a');
+		a.href = url;
+		a.download = 'recording.' + ext;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
 	}
 }

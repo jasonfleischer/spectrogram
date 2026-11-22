@@ -31,6 +31,7 @@ init = function() {
 	window_resized_end();
 	setup_keyboard_listeners();
 	setup_controls();
+	setup_recording_controls();
 	updateUI_buttons(audio_controller.state);
 
 	var isSafariMobile = window.mobileAndTabletCheck() && isSafari;
@@ -55,6 +56,7 @@ onAudioStateChanged = function(audio_state) {
 			break;
 	}
 	updateUI_buttons(audio_state);
+	updateUI_recording();
 }
 
 updateUI_buttons = function(audio_state) {

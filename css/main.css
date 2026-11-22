@@ -166,3 +166,51 @@ label {
 	display: none;
 }
 
+
+
+#recording_controls {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	width: 336px;
+}
+#record {
+	width: 100%;
+}
+#play_recording, #download_recording {
+	flex: 1;
+}
+#record.recording {
+	color: #ff4d4d;
+	border-color: #ff4d4d;
+}
+#record::before {
+	content: "\25CF  ";
+	color: #ff4d4d;
+}
+
+#playback_progress {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+#playback_progress_track {
+	flex: 1;
+	height: 6px;
+	border-radius: 3px;
+	background-color: var(--tertiary-background-color);
+	overflow: hidden;
+}
+#playback_progress_bar {
+	height: 100%;
+	width: 0%;
+	background-color: var(--highlight-color);
+}
+#playback_progress_time {
+	font-size: 14px;
+	font-weight: 200;
+	min-width: 80px;
+	text-align: right;
+	color: var(--primary-font-color);
+}
