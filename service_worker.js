@@ -11,20 +11,22 @@ self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE_NAME).then(function(cache) {
             return cache.addAll(CACHE);
-        })
+        }).then(function() { return self.skipWaiting(); })
     );
 });
 
+// network-first so new deployments are picked up; cache is the offline fallback
 self.addEventListener('fetch', function(event) {
-    console.log(ROOT_DIRECTORY_NAME+': fetch');
+    if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
     event.respondWith(
-        caches.open(CACHE_NAME).then(function(cache) {
-            return cache.match(event.request).then(function(response) {
-                return response || fetch(event.request).then(function(response) {
-                    cache.put(event.request, response.clone());
-                    return response;
-                });
-            });
+        fetch(event.request).then(function(response) {
+            if (response && response.ok && new URL(event.request.url).origin === self.location.origin) {
+                var copy = response.clone();
+                caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, copy); });
+            }
+            return response;
+        }).catch(function() {
+            return caches.match(event.request);
         })
     );
 });
@@ -41,6 +43,6 @@ self.addEventListener('activate', function activator(event) {
                     return caches.delete(key);
                 })
             );
-        })
+        }).then(function() { return self.clients.claim(); })
     );
 });
