@@ -1,4 +1,7 @@
 #!/bin/bash
+set -e # stop on the first failure so a half-built bundle is never left behind
+
+npm install
 
 # requirements:
 # npm, uglifycss, browserify
