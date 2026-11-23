@@ -166,8 +166,12 @@ label {
 }
 
 #spectrogram, #spectrogram2 {
-	width: 1000px;
+	width: 100%;
 	height: 450px;
+	box-sizing: border-box;
+}
+#spectrogram canvas, #spectrogram2 canvas {
+	max-width: 100%;
 }
 
 #bpm_row, #metronome_volume_row, #metronome_beat_division_row {
