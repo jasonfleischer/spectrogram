@@ -238,6 +238,7 @@ class AudioController {
 		});
 		this.isDecoding = true;
 		this.onRecordingChange();
+		$("record").style.setProperty("--record-icon-color", "#444");
 	}
 
 	decodeRecording() {
@@ -306,6 +307,7 @@ class AudioController {
 		this.playbackOffset = 0;
 		this.mode = 'live';
 		this.onRecordingChange();
+		$("record").style.setProperty("--record-icon-color", "#ff4d4d");
 	}
 
 	downloadRecording() {

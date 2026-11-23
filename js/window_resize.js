@@ -17,13 +17,10 @@ function window_resized_end(){
 
 	window_resize_start_event_occured = false;
 	let contentWidth = document.body.clientWidth;
-	
-	//todo
-	
+		
 	if(audio_controller.state == audio_controller_state.RESUMED) audio_controller.pause();
 	
-	let paddingLeftRight = 30;
-	spectrogram.resize(Math.min(contentWidth-paddingLeftRight, 1000));
+	spectrogram.resize(contentWidth);
 
 	if(audio_controller.state == audio_controller_state.PAUSED) audio_controller.resume();		
 }

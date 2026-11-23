@@ -34,6 +34,8 @@ main {
 }
 
 aside {
+	max-width: 1000px;
+	margin: 0 auto;
   	width: 100%;
   	display: flex;
   	flex-wrap: wrap; 
@@ -148,7 +150,12 @@ label {
 	display: none;
 }
 
-#spectrogram, #spectrogram2, #oscilloscope, #frequency_view {
+#spectrogram {
+	border-bottom: 2px #49494955 solid;
+	margin-bottom: 12px;
+	margin-top: 2px;
+}
+#spectrogram2, #oscilloscope, #frequency_view {
 	border: 2px #49494955 solid;
 }
 
@@ -186,7 +193,7 @@ label {
 }
 #record::before {
 	content: "\25CF  ";
-	color: #ff4d4d;
+	color: var(--record-icon-color);
 }
 
 #playback_progress {
