@@ -23,7 +23,7 @@ body {
 	font-family: 'SF Display Thin', sans-serif;
 	margin: 0px;
 	padding: 0px;
-	overflow-x: hidden;
+	overflow-x: clip;
 }
 
 main {
@@ -116,7 +116,6 @@ label {
 }
 
 .checkbox-row span:first-child{
-	
 	height: 100%;
 	white-space: nowrap;
 	width: calc(100% - 150px);
@@ -175,7 +174,7 @@ label {
 }
 
 #begin {
-	position: fixed;
+	position: absolute;
 	top: 216px;
 	left: 50%;
 	transform: translateX(-50%);
