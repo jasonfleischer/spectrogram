@@ -54,7 +54,7 @@ function setup_controls(){
 				storage.set_bpm(value);
 				sliderText.innerHTML = "BPM: " + value.toFixed();
 			}
-			slider.addEventListener("mouseup", function(){
+			slider.addEventListener("change", function(){
 				var value = Number(this.value);
 				storage.set_bpm(value);
 				sliderText.innerHTML = "BPM: " + value.toFixed();
@@ -73,7 +73,7 @@ function setup_controls(){
 				storage.set_metronome_volume(value);
 				sliderText.innerHTML = "Volume: " + (value*100).toFixed() + "%";
 			}
-			slider.addEventListener("mouseup", function(){
+			slider.addEventListener("change", function(){
 				var value = Number(this.value);
 				storage.set_metronome_volume(value);
 				sliderText.innerHTML = "Volume: " + (value*100).toFixed() + "%";

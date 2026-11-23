@@ -37,7 +37,10 @@ class AudioController {
 
 	start(onStarted){
 		if(this.state == audio_controller_state.STOPPED){
-			this.ctx = new AudioContext();
+			var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+			this.ctx = new AudioContextClass();
+			// iOS Safari starts the context suspended (silent) until resumed inside a user gesture
+			if (this.ctx.state !== 'running') this.ctx.resume();
 
 			this.audio_controller_metronome.setup(this.ctx);
 			if(this.hasMetronome) {

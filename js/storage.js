@@ -17,8 +17,9 @@ storage.set_bpm = function(value){
 };
 
 storage.SPECTROGRAM_METRONOME_VOLUME_KEY = "SPECTROGRAM_METRONOME_VOLUME_KEY";
-storage.get_metronome_volume = function(default_value = 120){
-	return storage.get(storage.SPECTROGRAM_METRONOME_VOLUME_KEY, default_value);
+storage.get_metronome_volume = function(default_value = 0.5){
+	var value = Number(storage.get(storage.SPECTROGRAM_METRONOME_VOLUME_KEY, default_value));
+	return (isFinite(value) && value > 0 && value <= 1) ? value : default_value;
 };
 storage.set_metronome_volume = function(value){
 	localStorage.setItem(storage.SPECTROGRAM_METRONOME_VOLUME_KEY, value);

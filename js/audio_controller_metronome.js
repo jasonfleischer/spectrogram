@@ -19,7 +19,7 @@ class AudioControllerMetronome {
 		this.bpm = bpm;
 		this.beat_division = beatDivision;
 		this.start_time = 0;
-		this.volume = volume;
+		this.volume = Number(volume);
 	}
 
 	setup(ctx){
@@ -133,7 +133,7 @@ class AudioControllerMetronome {
 
 	updateBPM(bpm) { this.bpm = bpm; }
 
-	updateVolume(volume) { this.volume = volume; }
+	updateVolume(volume) { this.volume = Number(volume); }
 
 	updateBeatDivision(value) { this.beat_division = value; }
 }
