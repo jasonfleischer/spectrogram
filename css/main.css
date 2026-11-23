@@ -14,7 +14,6 @@ html, body {
     -webkit-text-size-adjust:none;
     min-height: -webkit-fill-available;
     height: -webkit-fill-available;
-    overflow-x: hidden;
 }
 
 body {
@@ -24,6 +23,7 @@ body {
 	font-family: 'SF Display Thin', sans-serif;
 	margin: 0px;
 	padding: 0px;
+	overflow-x: hidden;
 }
 
 main {
@@ -174,7 +174,14 @@ label {
 	display: none;
 }
 
-
+#begin {
+	position: fixed;
+	top: 216px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 336px;
+	box-sizing: border-box;
+}
 
 #recording_controls {
 	display: flex;

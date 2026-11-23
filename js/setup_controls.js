@@ -6,6 +6,7 @@ function setup_controls(){
 		$("kofi_button").onclick = function() { kofi(); };
 		$("info_button").onclick = function() { info(); };
 
+		$("begin").onclick = function() { audio_controller.start(); };
 		$("start").onclick = function() { audio_controller.start(); };
 		$("resume").onclick = function() { audio_controller.resume(); };
 		$("pause").onclick = function() { audio_controller.pause(); };

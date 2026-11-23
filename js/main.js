@@ -62,6 +62,8 @@ onAudioStateChanged = function(audio_state) {
 updateUI_buttons = function(audio_state) {
 	switch(audio_state){
 		case audio_controller_state.STOPPED:
+			$("begin").disabled = false;
+			$("begin").style.display = 'block';
 			$("start").disabled = false;
 			$("start").style.display = 'block';
 			$("resume").disabled = true;
@@ -70,6 +72,8 @@ updateUI_buttons = function(audio_state) {
 			$("pause").style.display = 'none';
 			break;
 		case audio_controller_state.RESUMED:
+			$("begin").disabled = true;
+			$("begin").style.display = 'none';
 			$("start").disabled = true;
 			$("start").style.display = 'none';
 			$("resume").disabled = true;
@@ -78,6 +82,8 @@ updateUI_buttons = function(audio_state) {
 			$("pause").style.display = 'block';
 			break;
 		case audio_controller_state.PAUSED:
+			$("begin").disabled = true;
+			$("begin").style.display = 'none';
 			$("start").disabled = true;
 			$("start").style.display = 'none';
 			$("resume").disabled = false;
