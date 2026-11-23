@@ -14,6 +14,7 @@ html, body {
     -webkit-text-size-adjust:none;
     min-height: -webkit-fill-available;
     height: -webkit-fill-available;
+    overflow-x: hidden;
 }
 
 body {
